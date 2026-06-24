@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Clock, CheckCircle2, IndianRupee, TrendingUp, Package } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { ShoppingBag, Clock, CheckCircle2, IndianRupee, TrendingUp, Package, Download, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
@@ -20,6 +22,7 @@ export default function DashboardOverview() {
   const [stats, setStats] = useState({ today: 0, pending: 0, completed: 0, revenue: 0 });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -82,6 +85,83 @@ export default function DashboardOverview() {
     { label: "Today's Revenue", value: formatPrice(stats.revenue), icon: IndianRupee, color: 'text-accent', bgColor: 'bg-accent/10' },
   ];
 
+  const handleDownloadWeeklyReport = async () => {
+    try {
+      setIsGeneratingPdf(true);
+      const supabase = createClient();
+      
+      const today = new Date();
+      const lastWeek = new Date();
+      lastWeek.setDate(today.getDate() - 7);
+      lastWeek.setHours(0, 0, 0, 0);
+
+      const { data: weeklyOrders, error } = await supabase
+        .from('orders')
+        .select('*')
+        .gte('created_at', lastWeek.toISOString())
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const orders = weeklyOrders || [];
+      const totalRevenue = orders
+        .filter(o => o.status === 'delivered')
+        .reduce((sum, o) => sum + Number(o.total_amount), 0);
+      const totalOrders = orders.length;
+
+      // Generate PDF
+      const doc = new jsPDF();
+      
+      // Title
+      doc.setFontSize(20);
+      doc.text('Flavour House - Weekly Order Report', 14, 22);
+      
+      // Date Range & Stats
+      doc.setFontSize(12);
+      doc.text(`Date Range: ${new Date(lastWeek).toLocaleDateString()} to ${new Date().toLocaleDateString()}`, 14, 32);
+      doc.text(`Total Orders: ${totalOrders}`, 14, 40);
+      doc.text(`Total Revenue: Rs. ${totalRevenue}`, 14, 48);
+
+      // Table Data
+      const tableColumn = ["Order ID", "Customer", "Items", "Amount", "Status", "Date"];
+      const tableRows = orders.map(order => {
+        // Safe check for items array
+        let itemCount = 0;
+        try {
+          const itemsArr = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+          itemCount = Array.isArray(itemsArr) ? itemsArr.length : 0;
+        } catch {
+          itemCount = 0;
+        }
+
+        return [
+          order.order_number,
+          order.customer_name,
+          `${itemCount} items`,
+          `Rs. ${order.total_amount}`,
+          ORDER_STATUS_LABELS[order.status as keyof typeof ORDER_STATUS_LABELS] || order.status,
+          new Date(order.created_at).toLocaleDateString()
+        ];
+      });
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 55,
+        theme: 'grid',
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [44, 24, 16] } // Match primary brand color
+      });
+
+      doc.save(`flavour-house-weekly-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF report. Please try again.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
@@ -116,11 +196,30 @@ export default function DashboardOverview() {
         transition={{ delay: 0.2 }}
         className="rounded-2xl border border-border bg-card card-shadow"
       >
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+        <div className="flex flex-col gap-4 border-b border-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="font-heading text-lg font-semibold text-primary">Recent Orders</h3>
-          <a href="/dashboard/orders" className="text-sm font-medium text-accent transition-colors hover:text-secondary">
-            View All →
-          </a>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleDownloadWeeklyReport}
+              disabled={isGeneratingPdf}
+              className="flex items-center gap-2 rounded-lg bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Weekly PDF
+                </>
+              )}
+            </button>
+            <a href="/dashboard/orders" className="text-sm font-medium text-text-light transition-colors hover:text-primary">
+              View All →
+            </a>
+          </div>
         </div>
 
         {loading ? (
