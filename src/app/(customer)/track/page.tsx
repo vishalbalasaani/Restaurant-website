@@ -400,15 +400,9 @@ function TrackOrderContent() {
                           <p className="mt-1 text-sm text-text-light">
                             Your order has been accepted! Please send a screenshot of your payment to our WhatsApp to start preparation.
                           </p>
-                          <a 
-                            href={`https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello Flavour House, my order #${order.order_number} was accepted. Here is the payment screenshot!`)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2 font-button text-sm font-bold text-white transition-colors hover:bg-[#128C7E]"
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                            Send Screenshot
-                          </a>
+                          <p className="mt-1 text-sm text-text-light font-medium text-[#25D366]">
+                            Please message {settings.whatsapp}
+                          </p>
                         </div>
                       </div>
                     </motion.div>

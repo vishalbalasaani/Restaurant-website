@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, CheckCircle2, XCircle, Clock, UtensilsCrossed, Package, Truck, Check, MessageCircle } from 'lucide-react';
+import { Bell, CheckCircle2, XCircle, Clock, UtensilsCrossed, Package, Truck, Check, MessageCircle, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Order } from '@/lib/types';
 import { formatPrice, playBuzzer, formatDate } from '@/lib/utils';
@@ -10,6 +10,7 @@ import { formatPrice, playBuzzer, formatDate } from '@/lib/utils';
 export default function LiveOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
 
   const fetchLiveOrders = async () => {
     const supabase = createClient();
@@ -42,6 +43,7 @@ export default function LiveOrdersPage() {
   }, []);
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    setUpdatingOrder(orderId);
     const supabase = createClient();
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
     
@@ -50,6 +52,7 @@ export default function LiveOrdersPage() {
     } else {
       setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus as any } : o));
     }
+    setUpdatingOrder(null);
   };
 
   if (loading) {
@@ -90,8 +93,14 @@ export default function LiveOrdersPage() {
     if (order.status === 'cancellation_requested') {
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl bg-red-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-red-600"><XCircle className="h-4 w-4" />Approve Cancel</button>
-          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 font-button text-sm font-bold text-text transition-colors hover:bg-background"><CheckCircle2 className="h-4 w-4" />Deny / Keep</button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl bg-red-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+            Approve Cancel
+          </button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 font-button text-sm font-bold text-text transition-colors hover:bg-background disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Deny / Keep
+          </button>
         </div>
       );
     }
@@ -99,8 +108,14 @@ export default function LiveOrdersPage() {
     if (order.status === 'pending_payment') {
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'awaiting_payment')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light"><CheckCircle2 className="h-4 w-4" />Accept Order</button>
-          <button onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100"><XCircle className="h-4 w-4" />Reject</button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'awaiting_payment')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Accept Order
+          </button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+            Reject
+          </button>
         </div>
       );
     }
@@ -110,8 +125,14 @@ export default function LiveOrdersPage() {
       const cleanPhone = order.customer_phone.replace(/[^0-9]/g, '');
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600"><CheckCircle2 className="h-4 w-4" />Payment Verified</button>
-          <a href={`https://wa.me/${cleanPhone}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-button text-sm font-bold text-white transition-colors hover:bg-[#128C7E]"><MessageCircle className="h-4 w-4" />Request via WhatsApp</a>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Payment Verified
+          </button>
+          <a href={`https://wa.me/${cleanPhone}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-button text-sm font-bold text-white transition-colors hover:bg-[#128C7E]">
+            <MessageCircle className="h-4 w-4" />
+            Request via WhatsApp
+          </a>
         </div>
       );
     }
@@ -119,7 +140,10 @@ export default function LiveOrdersPage() {
     if (order.status === 'payment_verified') {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-orange-600"><UtensilsCrossed className="h-4 w-4" />Start Preparing</button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <UtensilsCrossed className="h-4 w-4" />}
+            Start Preparing
+          </button>
         </div>
       );
     }
@@ -127,7 +151,10 @@ export default function LiveOrdersPage() {
     if (order.status === 'preparing') {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'ready')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600"><Package className="h-4 w-4" />Mark Ready</button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'ready')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Package className="h-4 w-4" />}
+            Mark Ready
+          </button>
         </div>
       );
     }
@@ -137,9 +164,15 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
           {isPickup ? (
-            <button onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600"><Check className="h-4 w-4" />Mark Picked Up</button>
+            <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
+              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              Mark Picked Up
+            </button>
           ) : (
-            <button onClick={() => handleStatusUpdate(order.id, 'out_for_delivery')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600"><Truck className="h-4 w-4" />Send Out for Delivery</button>
+            <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'out_for_delivery')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
+              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
+              Send Out for Delivery
+            </button>
           )}
         </div>
       );
@@ -148,7 +181,10 @@ export default function LiveOrdersPage() {
     if (order.status === 'out_for_delivery') {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700"><CheckCircle2 className="h-4 w-4" />Mark Delivered</button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Mark Delivered
+          </button>
         </div>
       );
     }
