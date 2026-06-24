@@ -165,6 +165,7 @@ export default function OrdersPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-background/50">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted w-16">#</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Order</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Customer</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Items</th>
@@ -176,8 +177,11 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filteredOrders.map((order) => (
+                {filteredOrders.map((order, index) => (
                   <tr key={order.id} className="transition-colors hover:bg-background/50">
+                    <td className="px-6 py-4 font-heading text-sm font-bold text-text-muted">
+                      {index + 1}
+                    </td>
                     <td className="px-6 py-4 font-heading text-sm font-semibold text-accent">
                       <p>{order.order_number}</p>
                       {order.order_notes && (
