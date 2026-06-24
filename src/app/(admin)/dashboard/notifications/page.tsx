@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, CheckCircle2, XCircle, Clock, UtensilsCrossed } from 'lucide-react';
+import { Bell, CheckCircle2, XCircle, Clock, UtensilsCrossed, Package, Truck, Check } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Order } from '@/lib/types';
 import { formatPrice, playBuzzer, formatDate } from '@/lib/utils';
@@ -16,7 +16,7 @@ export default function LiveOrdersPage() {
     const { data } = await supabase
       .from('orders')
       .select('*, order_items(*)')
-      .in('status', ['pending_payment', 'payment_verified', 'cancellation_requested'])
+      .in('status', ['pending_payment', 'payment_verified', 'preparing', 'ready', 'out_for_delivery', 'cancellation_requested'])
       .order('created_at', { ascending: true });
     
     setOrders(data || []);
@@ -53,7 +53,12 @@ export default function LiveOrdersPage() {
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     const supabase = createClient();
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
-    setOrders(orders.filter(o => o.id !== orderId)); // Optimistic remove
+    
+    if (newStatus === 'cancelled' || newStatus === 'delivered') {
+      setOrders(orders.filter(o => o.id !== orderId)); // Remove completed/cancelled orders
+    } else {
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus as any } : o));
+    }
   };
 
   if (loading) {
@@ -64,6 +69,81 @@ export default function LiveOrdersPage() {
     );
   }
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'cancellation_requested': return <span className="rounded bg-red-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 animate-pulse border border-red-200">Cancel Request</span>;
+      case 'pending_payment': 
+      case 'payment_verified': return <span className="rounded bg-accent/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-accent border border-accent/30">New Order</span>;
+      case 'preparing': return <span className="rounded bg-orange-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-orange-700 border border-orange-200">Preparing</span>;
+      case 'ready': return <span className="rounded bg-green-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-green-700 border border-green-200">Ready</span>;
+      case 'out_for_delivery': return <span className="rounded bg-blue-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 border border-blue-200">Out for Delivery</span>;
+      default: return null;
+    }
+  };
+
+  const getBorderColor = (status: string) => {
+    switch (status) {
+      case 'cancellation_requested': return 'border-red-400 shadow-red-100';
+      case 'pending_payment': 
+      case 'payment_verified': return 'border-accent shadow-accent/20';
+      case 'preparing': return 'border-orange-400 shadow-orange-100';
+      case 'ready': return 'border-green-400 shadow-green-100';
+      case 'out_for_delivery': return 'border-blue-400 shadow-blue-100';
+      default: return 'border-border';
+    }
+  };
+
+  const renderActionButtons = (order: Order) => {
+    if (order.status === 'cancellation_requested') {
+      return (
+        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
+          <button onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl bg-red-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-red-600"><XCircle className="h-4 w-4" />Approve Cancel</button>
+          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 font-button text-sm font-bold text-text transition-colors hover:bg-background"><CheckCircle2 className="h-4 w-4" />Deny / Keep</button>
+        </div>
+      );
+    }
+    
+    if (order.status === 'pending_payment' || order.status === 'payment_verified') {
+      return (
+        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
+          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light"><UtensilsCrossed className="h-4 w-4" />Accept (Prepare)</button>
+          <button onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100"><XCircle className="h-4 w-4" />Reject</button>
+        </div>
+      );
+    }
+
+    if (order.status === 'preparing') {
+      return (
+        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+          <button onClick={() => handleStatusUpdate(order.id, 'ready')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600"><Package className="h-4 w-4" />Mark Ready</button>
+        </div>
+      );
+    }
+
+    if (order.status === 'ready') {
+      const isPickup = order.customer_address === 'Pickup/Dine-in';
+      return (
+        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+          {isPickup ? (
+            <button onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600"><Check className="h-4 w-4" />Mark Picked Up</button>
+          ) : (
+            <button onClick={() => handleStatusUpdate(order.id, 'out_for_delivery')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600"><Truck className="h-4 w-4" />Send Out for Delivery</button>
+          )}
+        </div>
+      );
+    }
+
+    if (order.status === 'out_for_delivery') {
+      return (
+        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+          <button onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700"><CheckCircle2 className="h-4 w-4" />Mark Delivered</button>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -71,15 +151,15 @@ export default function LiveOrdersPage() {
           <Bell className="h-6 w-6 text-accent" />
         </div>
         <div>
-          <h1 className="font-heading text-2xl font-bold text-primary">Live Orders</h1>
-          <p className="text-sm text-text-light">Manage incoming orders and cancellation requests</p>
+          <h1 className="font-heading text-2xl font-bold text-primary">Live Orders Workflow</h1>
+          <p className="text-sm text-text-light">Manage the entire lifecycle of active orders</p>
         </div>
       </div>
 
       {orders.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-12 text-center card-shadow">
+        <div className="rounded-2xl border border-border bg-card p-12 text-center shadow-sm">
           <UtensilsCrossed className="mx-auto mb-4 h-12 w-12 text-border" />
-          <p className="text-lg font-medium text-text">No live orders right now</p>
+          <p className="text-lg font-medium text-text">No active orders right now</p>
           <p className="text-sm text-text-light">We will notify you when a new order arrives.</p>
         </div>
       ) : (
@@ -91,9 +171,7 @@ export default function LiveOrdersPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className={`flex flex-col justify-between overflow-hidden rounded-2xl border-2 bg-card card-shadow ${
-                  order.status === 'cancellation_requested' ? 'border-red-400' : 'border-accent'
-                }`}
+                className={`flex flex-col justify-between overflow-hidden rounded-2xl border-2 bg-card shadow-md transition-colors duration-300 ${getBorderColor(order.status)}`}
               >
                 <div className="p-6">
                   <div className="mb-4 flex items-start justify-between border-b border-border pb-4">
@@ -103,15 +181,7 @@ export default function LiveOrdersPage() {
                         <Clock className="h-3 w-3" /> {formatDate(order.created_at)}
                       </p>
                     </div>
-                    {order.status === 'cancellation_requested' ? (
-                      <span className="rounded bg-red-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 animate-pulse">
-                        Cancel Request
-                      </span>
-                    ) : (
-                      <span className="rounded bg-accent/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-accent">
-                        New Order
-                      </span>
-                    )}
+                    {getStatusBadge(order.status)}
                   </div>
 
                   <div className="mb-6">
@@ -149,43 +219,7 @@ export default function LiveOrdersPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
-                  {order.status === 'cancellation_requested' ? (
-                    <>
-                      <button
-                        onClick={() => handleStatusUpdate(order.id, 'cancelled')}
-                        className="flex items-center justify-center gap-2 rounded-xl bg-red-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-red-600"
-                      >
-                        <XCircle className="h-4 w-4" />
-                        Approve Cancel
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(order.id, 'preparing')}
-                        className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 font-button text-sm font-bold text-text transition-colors hover:bg-background"
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                        Deny / Keep
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => handleStatusUpdate(order.id, 'preparing')}
-                        className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light"
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(order.id, 'cancelled')}
-                        className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100"
-                      >
-                        <XCircle className="h-4 w-4" />
-                        Reject
-                      </button>
-                    </>
-                  )}
-                </div>
+                {renderActionButtons(order)}
               </motion.div>
             ))}
           </AnimatePresence>
