@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, CheckCircle2, XCircle, Clock, UtensilsCrossed, Package, Truck, Check } from 'lucide-react';
+import { Bell, CheckCircle2, XCircle, Clock, UtensilsCrossed, Package, Truck, Check, MessageCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Order } from '@/lib/types';
 import { formatPrice, playBuzzer, formatDate } from '@/lib/utils';
@@ -16,7 +16,7 @@ export default function LiveOrdersPage() {
     const { data } = await supabase
       .from('orders')
       .select('*, order_items(*)')
-      .in('status', ['pending_payment', 'payment_verified', 'preparing', 'ready', 'out_for_delivery', 'cancellation_requested'])
+      .in('status', ['pending_payment', 'awaiting_payment', 'payment_verified', 'preparing', 'ready', 'out_for_delivery', 'cancellation_requested'])
       .order('created_at', { ascending: true });
     
     setOrders(data || []);
@@ -65,6 +65,7 @@ export default function LiveOrdersPage() {
       case 'cancellation_requested': return <span className="rounded bg-red-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 animate-pulse border border-red-200">Cancel Request</span>;
       case 'pending_payment': 
       case 'payment_verified': return <span className="rounded bg-accent/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-accent border border-accent/30">New Order</span>;
+      case 'awaiting_payment': return <span className="rounded bg-yellow-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-yellow-700 border border-yellow-200">Awaiting Payment</span>;
       case 'preparing': return <span className="rounded bg-orange-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-orange-700 border border-orange-200">Preparing</span>;
       case 'ready': return <span className="rounded bg-green-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-green-700 border border-green-200">Ready</span>;
       case 'out_for_delivery': return <span className="rounded bg-blue-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 border border-blue-200">Out for Delivery</span>;
@@ -77,6 +78,7 @@ export default function LiveOrdersPage() {
       case 'cancellation_requested': return 'border-red-400 shadow-red-100';
       case 'pending_payment': 
       case 'payment_verified': return 'border-accent shadow-accent/20';
+      case 'awaiting_payment': return 'border-yellow-400 shadow-yellow-100';
       case 'preparing': return 'border-orange-400 shadow-orange-100';
       case 'ready': return 'border-green-400 shadow-green-100';
       case 'out_for_delivery': return 'border-blue-400 shadow-blue-100';
@@ -97,8 +99,19 @@ export default function LiveOrdersPage() {
     if (order.status === 'pending_payment') {
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'payment_verified')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light"><CheckCircle2 className="h-4 w-4" />Verify Payment</button>
+          <button onClick={() => handleStatusUpdate(order.id, 'awaiting_payment')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light"><CheckCircle2 className="h-4 w-4" />Accept Order</button>
           <button onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100"><XCircle className="h-4 w-4" />Reject</button>
+        </div>
+      );
+    }
+
+    if (order.status === 'awaiting_payment') {
+      const whatsappMsg = encodeURIComponent(`Hello ${order.customer_name}, your order #${order.order_number} from Flavour House is accepted! Please verify your payment by sending a screenshot here.`);
+      const cleanPhone = order.customer_phone.replace(/[^0-9]/g, '');
+      return (
+        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
+          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600"><CheckCircle2 className="h-4 w-4" />Payment Verified</button>
+          <a href={`https://wa.me/${cleanPhone}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-button text-sm font-bold text-white transition-colors hover:bg-[#128C7E]"><MessageCircle className="h-4 w-4" />Request via WhatsApp</a>
         </div>
       );
     }

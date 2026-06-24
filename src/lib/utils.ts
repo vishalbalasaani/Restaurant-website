@@ -59,11 +59,12 @@ Please confirm my order so I can make the payment. I am ready to pay via UPI!`;
 export function getStatusStep(status: string): number {
   const steps: Record<string, number> = {
     pending_payment: 0,
-    payment_verified: 1,
-    preparing: 2,
-    ready: 3,
-    out_for_delivery: 4,
-    delivered: 5,
+    awaiting_payment: 1,
+    payment_verified: 2,
+    preparing: 3,
+    ready: 4,
+    out_for_delivery: 5,
+    delivered: 6,
     cancelled: -1,
   };
   return steps[status] ?? -1;

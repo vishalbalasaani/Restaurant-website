@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star } from 'lucide-react';
+import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate, getStatusStep } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
@@ -11,7 +11,8 @@ import { useSettings } from '@/lib/hooks/use-settings';
 import type { Order, OrderItem } from '@/lib/types';
 
 const STATUS_STEPS = [
-  { key: 'pending_payment', label: 'Pending Payment', icon: CreditCard },
+  { key: 'pending_payment', label: 'Order Placed', icon: CreditCard },
+  { key: 'awaiting_payment', label: 'Awaiting Verification', icon: MessageCircle },
   { key: 'payment_verified', label: 'Payment Verified', icon: CheckCircle2 },
   { key: 'preparing', label: 'Preparing', icon: ChefHat },
   { key: 'ready', label: 'Ready', icon: Package },
@@ -386,8 +387,35 @@ function TrackOrderContent() {
                   )}
                 </div>
               ) : (
-                /* Status Timeline */
-                <div className="space-y-0 py-4 relative">
+                <div className="space-y-6">
+                  {/* WhatsApp Verification Banner */}
+                  {order.status === 'awaiting_payment' && settings?.whatsapp && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-[#25D366]/30 bg-[#25D366]/5 p-5">
+                      <div className="flex items-start gap-4">
+                        <div className="rounded-full bg-[#25D366]/20 p-2 text-[#25D366]">
+                          <MessageCircle className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h4 className="font-heading font-bold text-text">Verify your payment</h4>
+                          <p className="mt-1 text-sm text-text-light">
+                            Your order has been accepted! Please send a screenshot of your payment to our WhatsApp to start preparation.
+                          </p>
+                          <a 
+                            href={`https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello Flavour House, my order #${order.order_number} was accepted. Here is the payment screenshot!`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2 font-button text-sm font-bold text-white transition-colors hover:bg-[#128C7E]"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                            Send Screenshot
+                          </a>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  /* Status Timeline */
+                  <div className="space-y-0 py-4 relative">
                   {STATUS_STEPS.map((step, index) => {
                     const isCompleted = index <= currentStep;
                     const isCurrent = index === currentStep;

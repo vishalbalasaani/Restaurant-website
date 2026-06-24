@@ -33,6 +33,7 @@ export interface Product {
 
 export type OrderStatus =
   | 'pending_payment'
+  | 'awaiting_payment'
   | 'payment_verified'
   | 'preparing'
   | 'ready'
@@ -120,6 +121,7 @@ export interface ProductFormData {
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   pending_payment: 'Pending Payment',
+  awaiting_payment: 'Awaiting Payment',
   payment_verified: 'Payment Verified',
   preparing: 'Preparing',
   ready: 'Ready',
@@ -131,6 +133,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 
 export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
   pending_payment: 'status-pending',
+  awaiting_payment: 'bg-yellow-100 text-yellow-800',
   payment_verified: 'status-verified',
   preparing: 'status-preparing',
   ready: 'status-ready',
@@ -142,6 +145,7 @@ export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
 
 export const ORDER_STATUS_FLOW: OrderStatus[] = [
   'pending_payment',
+  'awaiting_payment',
   'payment_verified',
   'preparing',
   'ready',
