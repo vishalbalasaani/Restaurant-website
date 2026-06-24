@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
+import { playBuzzer } from '@/lib/utils';
 const NAV_ITEMS = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Live Orders', href: '/dashboard/notifications', icon: ChefHat },
@@ -47,7 +48,31 @@ export default function DashboardLayout({
       }
     };
     fetchSettings();
-  }, []);
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel('global-admin-orders')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            playBuzzer();
+            router.push('/dashboard/notifications');
+          } else if (payload.eventType === 'UPDATE') {
+             const newStatus = (payload.new as any).status;
+             const oldStatus = (payload.old as any).status;
+             if (newStatus === 'cancellation_requested' && oldStatus !== 'cancellation_requested') {
+               playBuzzer();
+               router.push('/dashboard/notifications');
+             }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [router]);
 
   const handleLogout = async () => {
     const supabase = createClient();

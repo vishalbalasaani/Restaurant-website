@@ -33,15 +33,6 @@ export default function LiveOrdersPage() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'orders' },
         (payload) => {
-          if (payload.eventType === 'INSERT') {
-             playBuzzer();
-          } else if (payload.eventType === 'UPDATE') {
-             const newStatus = (payload.new as Order).status;
-             const oldStatus = (payload.old as Order).status;
-             if (newStatus === 'cancellation_requested' && oldStatus !== 'cancellation_requested') {
-               playBuzzer();
-             }
-          }
           fetchLiveOrders();
         }
       )
@@ -103,11 +94,19 @@ export default function LiveOrdersPage() {
       );
     }
     
-    if (order.status === 'pending_payment' || order.status === 'payment_verified') {
+    if (order.status === 'pending_payment') {
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
-          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light"><UtensilsCrossed className="h-4 w-4" />Accept (Prepare)</button>
+          <button onClick={() => handleStatusUpdate(order.id, 'payment_verified')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light"><CheckCircle2 className="h-4 w-4" />Verify Payment</button>
           <button onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100"><XCircle className="h-4 w-4" />Reject</button>
+        </div>
+      );
+    }
+
+    if (order.status === 'payment_verified') {
+      return (
+        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+          <button onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-orange-600"><UtensilsCrossed className="h-4 w-4" />Start Preparing</button>
         </div>
       );
     }
