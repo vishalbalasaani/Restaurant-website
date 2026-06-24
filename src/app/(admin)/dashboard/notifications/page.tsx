@@ -94,12 +94,12 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl bg-red-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-            Approve Cancel
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Approve</span>
           </button>
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 font-button text-sm font-bold text-text transition-colors hover:bg-background disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Deny / Keep
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Deny</span>
           </button>
         </div>
       );
@@ -109,12 +109,12 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'awaiting_payment')} className="flex items-center justify-center gap-2 rounded-xl bg-accent py-3 font-button text-sm font-bold text-primary transition-colors hover:bg-accent-light disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Accept Order
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Accept</span>
           </button>
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-            Reject
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Reject</span>
           </button>
         </div>
       );
@@ -126,12 +126,12 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Payment Verified
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Verify Payment</span>
           </button>
           <a href={`https://wa.me/${cleanPhone}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-button text-sm font-bold text-white transition-colors hover:bg-[#128C7E]">
-            <MessageCircle className="h-4 w-4" />
-            Request via WhatsApp
+            <MessageCircle className="h-4 w-4 shrink-0" />
+            <span className="truncate">WhatsApp</span>
           </a>
         </div>
       );
@@ -141,7 +141,7 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <UtensilsCrossed className="h-4 w-4" />}
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <UtensilsCrossed className="h-4 w-4 shrink-0" />}
             Start Preparing
           </button>
         </div>
@@ -152,7 +152,7 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'ready')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Package className="h-4 w-4" />}
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Package className="h-4 w-4 shrink-0" />}
             Mark Ready
           </button>
         </div>
@@ -165,12 +165,12 @@ export default function LiveOrdersPage() {
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
           {isPickup ? (
             <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
-              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Check className="h-4 w-4 shrink-0" />}
               Mark Picked Up
             </button>
           ) : (
             <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'out_for_delivery')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
-              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
+              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Truck className="h-4 w-4 shrink-0" />}
               Send Out for Delivery
             </button>
           )}
@@ -182,7 +182,7 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
             Mark Delivered
           </button>
         </div>
