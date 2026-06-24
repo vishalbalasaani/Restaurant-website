@@ -97,7 +97,7 @@ export default function DashboardOverview() {
 
       const { data: weeklyOrders, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, order_items(*)')
         .gte('created_at', lastWeek.toISOString())
         .order('created_at', { ascending: false });
 
@@ -125,19 +125,18 @@ export default function DashboardOverview() {
       // Table Data
       const tableColumn = ["Order ID", "Customer", "Items", "Amount", "Status", "Date"];
       const tableRows = orders.map(order => {
-        // Safe check for items array
-        let itemCount = 0;
-        try {
-          const itemsArr = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-          itemCount = Array.isArray(itemsArr) ? itemsArr.length : 0;
-        } catch {
-          itemCount = 0;
+        // Format items as a comma-separated list of "2x Burger"
+        let itemsString = 'No items';
+        if (order.order_items && Array.isArray(order.order_items) && order.order_items.length > 0) {
+          itemsString = order.order_items
+            .map((item: any) => `${item.quantity}x ${item.product_name}`)
+            .join('\n');
         }
 
         return [
           order.order_number,
           order.customer_name,
-          `${itemCount} items`,
+          itemsString,
           `Rs. ${order.total_amount}`,
           ORDER_STATUS_LABELS[order.status as keyof typeof ORDER_STATUS_LABELS] || order.status,
           new Date(order.created_at).toLocaleDateString()
