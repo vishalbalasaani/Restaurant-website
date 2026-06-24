@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import MenuSection from '@/components/customer/menu-section';
-import Hero from '@/components/customer/hero';
 
 export const metadata: Metadata = {
   title: 'Menu — Flavour House',
@@ -9,11 +8,8 @@ export const metadata: Metadata = {
 
 export default function MenuPage() {
   return (
-    <>
-      <Hero />
-      <div className="pt-8">
-        <MenuSection />
-      </div>
-    </>
+    <div className="pt-24">
+      <MenuSection />
+    </div>
   );
 }
