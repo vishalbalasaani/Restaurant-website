@@ -85,7 +85,7 @@ export default function Onboarding() {
       >
         <div className="mb-8 text-center">
           <h1 className="font-heading text-3xl font-bold text-primary mb-2">Almost there!</h1>
-          <p className="text-text-light">Let's complete your profile so we can deliver your orders.</p>
+          <p className="text-text-light">Let&apos;s complete your profile so we can deliver your orders.</p>
         </div>
 
         <div className="rounded-3xl border border-border bg-card p-8 card-shadow">

@@ -103,7 +103,7 @@ export default function CustomerProfile() {
                 <Clock className="h-8 w-8 text-text-muted" />
               </div>
               <h3 className="font-heading text-xl font-bold text-text mb-2">No orders yet</h3>
-              <p className="text-text-light mb-6">You haven't placed any orders yet. Let's fix that!</p>
+              <p className="text-text-light mb-6">You haven&apos;t placed any orders yet. Let&apos;s fix that!</p>
               <button 
                 onClick={() => router.push('/menu')}
                 className="rounded-xl bg-accent px-6 py-3 font-button text-sm font-semibold text-primary hover:bg-accent-light transition-colors"

@@ -34,6 +34,7 @@ export default function OrdersPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOrders();
 
     const supabase = createClient();
@@ -257,7 +258,7 @@ export default function OrdersPage() {
                           </div>
                           {order.review_comment && (
                             <p className="text-[11px] leading-snug text-text-light italic line-clamp-2">
-                              "{order.review_comment}"
+                              &quot;{order.review_comment}&quot;
                             </p>
                           )}
                         </div>

@@ -56,6 +56,7 @@ function TrackOrderContent() {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order?.id]);
 
   const removeOrderFromStorage = (orderNum: string): string[] => {
@@ -87,7 +88,7 @@ function TrackOrderContent() {
     try {
       const supabase = createClient();
 
-      let query = supabase.from('orders').select('*').eq('order_number', queryOrder);
+      const query = supabase.from('orders').select('*').eq('order_number', queryOrder);
       
       const { data, error: fetchError } = await query.single();
 
@@ -146,6 +147,7 @@ function TrackOrderContent() {
       localStorage.setItem('recentOrders', JSON.stringify(ordersList));
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveOrders(ordersList);
 
     if (urlOrder) {
@@ -242,7 +244,7 @@ function TrackOrderContent() {
               <Package className="h-12 w-12 text-accent" />
             </div>
             <h2 className="mb-2 font-heading text-2xl font-bold text-primary">No Active Orders</h2>
-            <p className="mb-8 text-text-light">You don't have any orders currently in progress. Grab some delicious food!</p>
+            <p className="mb-8 text-text-light">You don&apos;t have any orders currently in progress. Grab some delicious food!</p>
             <a href="/menu" className="rounded-xl bg-primary px-8 py-3.5 font-button text-sm font-semibold text-white transition-colors hover:bg-primary-light">
               Browse Menu
             </a>

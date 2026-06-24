@@ -156,7 +156,7 @@ export default function CustomerLogin() {
           </form>
 
           <p className="mt-6 text-center text-sm text-text-light">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className="font-semibold text-accent hover:underline">
               Create one
             </Link>

@@ -46,7 +46,10 @@ export default function MenuManagementPage() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchData(); 
+  }, []);
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);

@@ -72,6 +72,7 @@ export function getStatusStep(status: string): number {
 
 export function playBuzzer() {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     

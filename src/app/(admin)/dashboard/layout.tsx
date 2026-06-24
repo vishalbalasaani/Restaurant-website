@@ -26,62 +26,16 @@ const NAV_ITEMS = [
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
-export default function DashboardLayout({
-  children,
+function Sidebar({
+  pathname,
+  setSidebarOpen,
+  handleLogout,
 }: {
-  children: React.ReactNode;
+  pathname: string;
+  setSidebarOpen: (val: boolean) => void;
+  handleLogout: () => void;
 }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [settings, setSettings] = useState<Partial<RestaurantSettings>>({});
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const supabase = createClient();
-        const { data } = await supabase.from('restaurant_settings').select('*').single();
-        if (data) setSettings(data);
-      } catch {
-        // ignore
-      }
-    };
-    fetchSettings();
-
-    const supabase = createClient();
-    const channel = supabase
-      .channel('global-admin-orders')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'orders' },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            playBuzzer();
-            router.push('/dashboard/notifications');
-          } else if (payload.eventType === 'UPDATE') {
-             const newStatus = (payload.new as any).status;
-             const oldStatus = (payload.old as any).status;
-             if (newStatus === 'cancellation_requested' && oldStatus !== 'cancellation_requested') {
-               playBuzzer();
-               router.push('/dashboard/notifications');
-             }
-          }
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [router]);
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push('/login');
-    router.refresh();
-  };
-
-  const Sidebar = () => (
+  return (
     <div className="flex h-full flex-col bg-primary text-white">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b border-white/10 px-6 md:h-20">
@@ -126,12 +80,71 @@ export default function DashboardLayout({
       </div>
     </div>
   );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
+  const pathname = usePathname();
+  const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [settings, setSettings] = useState<Partial<RestaurantSettings>>({});
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.from('restaurant_settings').select('*').single();
+        if (data) setSettings(data);
+      } catch {
+        // ignore
+      }
+    };
+    fetchSettings();
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel('global-admin-orders')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            playBuzzer();
+            router.push('/dashboard/notifications');
+          } else if (payload.eventType === 'UPDATE') {
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             const newStatus = (payload.new as any).status;
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             const oldStatus = (payload.old as any).status;
+             if (newStatus === 'cancellation_requested' && oldStatus !== 'cancellation_requested') {
+               playBuzzer();
+               router.push('/dashboard/notifications');
+             }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [router]);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  };
 
   return (
     <div className="flex h-screen bg-background">
       {/* Desktop Sidebar */}
       <aside className="hidden w-64 flex-shrink-0 md:block">
-        <Sidebar />
+        <Sidebar pathname={pathname} setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -139,7 +152,7 @@ export default function DashboardLayout({
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-64">
-            <Sidebar />
+            <Sidebar pathname={pathname} setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} />
           </div>
         </div>
       )}
