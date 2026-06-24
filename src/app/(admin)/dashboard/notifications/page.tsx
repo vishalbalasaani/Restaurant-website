@@ -140,10 +140,14 @@ export default function LiveOrdersPage() {
 
     if (order.status === 'payment_verified') {
       return (
-        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-orange-600 disabled:opacity-70">
             {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <UtensilsCrossed className="h-4 w-4 shrink-0" />}
-            Start Preparing
+            <span className="truncate">Start Preparing</span>
+          </button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Cancel</span>
           </button>
         </div>
       );
@@ -151,10 +155,14 @@ export default function LiveOrdersPage() {
 
     if (order.status === 'preparing') {
       return (
-        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'ready')} className="flex items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-600 disabled:opacity-70">
             {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Package className="h-4 w-4 shrink-0" />}
-            Mark Ready
+            <span className="truncate">Mark Ready</span>
+          </button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Cancel</span>
           </button>
         </div>
       );
