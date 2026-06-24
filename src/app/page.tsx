@@ -61,7 +61,7 @@ export default function StartPage() {
           className="space-y-4"
         >
           {/* Customer Button */}
-          <Link href="/home#menu" className="group block">
+          <Link href="/home" className="group block">
             <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-8 py-5 backdrop-blur-sm transition-all duration-300 hover:border-accent/30 hover:bg-white/10">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20">

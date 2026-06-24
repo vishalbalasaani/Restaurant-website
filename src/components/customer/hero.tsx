@@ -9,7 +9,7 @@ export default function Hero() {
     <section id="hero" className="relative flex min-h-screen items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat lg:bg-fixed"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&h=1080&fit=crop')`,
         }}
@@ -53,6 +53,27 @@ export default function Hero() {
           Handcrafted dishes made with the finest ingredients,
           delivered straight to your doorstep.
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="flex flex-col items-center justify-center gap-4 sm:flex-row"
+        >
+          <Link
+            href="/menu"
+            className="group flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-8 py-4 font-button text-base font-bold text-primary transition-all hover:bg-accent-light hover:shadow-lg hover:shadow-accent/20 sm:w-auto"
+          >
+            Order Now
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Link>
+          <a
+            href="#menu"
+            className="w-full rounded-xl border border-white/20 bg-white/5 px-8 py-4 font-button text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-white/10 sm:w-auto"
+          >
+            View Menu
+          </a>
+        </motion.div>
 
       </div>
 
