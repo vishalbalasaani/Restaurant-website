@@ -10,9 +10,8 @@ import { usePathname } from 'next/navigation';
 
 export default function FloatingCart() {
   const [mounted, setMounted] = useState(false);
-  const { getTotalItems, getTotalAmount } = useCartStore();
-  const totalItems = getTotalItems();
-  const totalAmount = getTotalAmount();
+  const totalItems = useCartStore((state) => state.getTotalItems());
+  const totalAmount = useCartStore((state) => state.getTotalAmount());
   const pathname = usePathname();
 
   useEffect(() => {
