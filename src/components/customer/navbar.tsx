@@ -28,17 +28,17 @@ export default function Navbar() {
         transition={{ duration: 0.5 }}
         className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-white/95 shadow-sm backdrop-blur-md'
+            ? 'bg-primary/80 shadow-lg backdrop-blur-md border-b border-white/10'
             : 'bg-transparent'
         }`}
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
           {/* Logo */}
           <Link href="/home" className="flex items-center gap-2">
-            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isScrolled ? 'bg-primary' : 'bg-white/10 backdrop-blur-sm'}`}>
+            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isScrolled ? 'bg-accent/20 backdrop-blur-sm' : 'bg-white/10 backdrop-blur-sm'}`}>
               <ChefHat className={`h-5 w-5 ${isScrolled ? 'text-accent' : 'text-white'}`} />
             </div>
-            <span className={`font-heading text-xl font-bold ${isScrolled ? 'text-primary' : 'text-white'}`}>
+            <span className={`font-heading text-xl font-bold text-white`}>
               Flavour House
             </span>
           </Link>
@@ -50,7 +50,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`font-body text-sm font-medium transition-colors hover:text-accent ${
-                  isScrolled ? 'text-text-light' : 'text-white/80 hover:text-white'
+                  isScrolled ? 'text-white/90' : 'text-white/80'
                 }`}
               >
                 {link.label}
@@ -62,7 +62,7 @@ export default function Navbar() {
               onClick={() => setIsCartOpen(true)}
               className={`relative flex items-center gap-2 rounded-full px-5 py-2.5 font-button text-sm font-medium transition-all duration-300 ${
                 isScrolled
-                  ? 'bg-primary text-white hover:bg-primary-light'
+                  ? 'bg-accent text-primary hover:bg-accent-light'
                   : 'bg-white/10 text-white backdrop-blur-sm hover:bg-white/20'
               }`}
             >
@@ -83,7 +83,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3 md:hidden">
             <button
               onClick={() => setIsCartOpen(true)}
-              className={`relative rounded-full p-2 ${isScrolled ? 'text-primary' : 'text-white'}`}
+              className={`relative rounded-full p-2 text-white hover:bg-white/10`}
             >
               <ShoppingBag className="h-5 w-5" />
               {totalItems > 0 && (
@@ -94,7 +94,7 @@ export default function Navbar() {
             </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`rounded-lg p-2 ${isScrolled ? 'text-primary' : 'text-white'}`}
+              className={`rounded-lg p-2 text-white hover:bg-white/10`}
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
