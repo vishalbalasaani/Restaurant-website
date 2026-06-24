@@ -32,9 +32,9 @@ export default function FloatingCart() {
         className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-lg md:bottom-8"
       >
         <Link href="/cart">
-          <div className="flex items-center justify-between rounded-2xl bg-primary px-6 py-4 shadow-2xl shadow-primary/30 transition-transform hover:-translate-y-1 active:scale-[0.98]">
+          <div className="flex items-center justify-between rounded-2xl bg-primary/95 backdrop-blur-lg border border-white/10 px-6 py-4 shadow-2xl shadow-black/50 transition-transform hover:-translate-y-1 active:scale-[0.98]">
             <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/20 text-accent backdrop-blur-sm">
                 <ShoppingBag className="h-5 w-5" />
               </div>
               <div className="text-left text-white">
@@ -47,7 +47,7 @@ export default function FloatingCart() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2 font-button text-sm font-bold text-white">
+            <div className="flex items-center gap-2 font-button text-sm font-bold text-accent">
               View Cart
               <ArrowRight className="h-4 w-4" />
             </div>
