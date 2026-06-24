@@ -140,11 +140,11 @@ export default function CartPage() {
       window.open(waLink, '_blank');
 
       clearCart();
-      setOrderPlaced(true);
+      router.push(`/track?order=${ordNum}`);
     } catch {
       // Fallback: still show success with local order number
       clearCart();
-      setOrderPlaced(true);
+      router.push(`/track?order=${ordNum}`);
     } finally {
       setIsSubmitting(false);
     }
