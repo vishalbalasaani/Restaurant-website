@@ -50,6 +50,12 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/signin"
+              className="font-body text-sm font-medium transition-colors hover:text-accent text-white/90"
+            >
+              Admin Login
+            </Link>
 
             {/* Cart Button */}
             <button
@@ -111,6 +117,13 @@ export default function Navbar() {
                     {link.label}
                   </Link>
                 ))}
+                <Link
+                  href="/signin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block rounded-lg px-4 py-3 font-body text-sm font-medium text-text-light transition-colors hover:bg-background hover:text-primary"
+                >
+                  Admin Login
+                </Link>
               </div>
             </motion.div>
           )}

@@ -6,7 +6,7 @@ import { ArrowRight, UtensilsCrossed } from 'lucide-react';
 
 export default function Hero() {
   return (
-    <section id="hero" className="relative flex min-h-[50vh] items-center justify-center overflow-hidden pt-24 pb-12">
+    <section id="hero" className="relative flex min-h-screen items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
