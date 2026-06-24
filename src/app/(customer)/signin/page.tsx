@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChefHat, Mail, Lock, LogIn, Chrome } from 'lucide-react';
+import { ChefHat, Mail, Lock, LogIn } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function CustomerLogin() {
