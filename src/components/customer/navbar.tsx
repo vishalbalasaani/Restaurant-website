@@ -26,19 +26,15 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-primary/80 shadow-lg backdrop-blur-md border-b border-white/10'
-            : 'bg-transparent'
-        }`}
+        className="fixed left-0 right-0 top-0 z-50 transition-all duration-300 bg-primary/95 shadow-lg backdrop-blur-md border-b border-white/10"
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
           {/* Logo */}
           <Link href="/home" className="flex items-center gap-2">
-            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isScrolled ? 'bg-accent/20 backdrop-blur-sm' : 'bg-white/10 backdrop-blur-sm'}`}>
-              <ChefHat className={`h-5 w-5 ${isScrolled ? 'text-accent' : 'text-white'}`} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/20 backdrop-blur-sm">
+              <ChefHat className="h-5 w-5 text-accent" />
             </div>
-            <span className={`font-heading text-xl font-bold text-white`}>
+            <span className="font-heading text-xl font-bold text-white">
               Flavour House
             </span>
           </Link>
@@ -49,9 +45,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-body text-sm font-medium transition-colors hover:text-accent ${
-                  isScrolled ? 'text-white/90' : 'text-white/80'
-                }`}
+                className="font-body text-sm font-medium transition-colors hover:text-accent text-white/90"
               >
                 {link.label}
               </Link>
@@ -60,11 +54,7 @@ export default function Navbar() {
             {/* Cart Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className={`relative flex items-center gap-2 rounded-full px-5 py-2.5 font-button text-sm font-medium transition-all duration-300 ${
-                isScrolled
-                  ? 'bg-accent text-primary hover:bg-accent-light'
-                  : 'bg-white/10 text-white backdrop-blur-sm hover:bg-white/20'
-              }`}
+              className="relative flex items-center gap-2 rounded-full px-5 py-2.5 font-button text-sm font-medium transition-all duration-300 bg-accent text-primary hover:bg-accent-light"
             >
               <ShoppingBag className="h-4 w-4" />
               Cart
