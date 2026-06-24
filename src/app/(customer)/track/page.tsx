@@ -11,13 +11,13 @@ import { useSettings } from '@/lib/hooks/use-settings';
 import type { Order, OrderItem } from '@/lib/types';
 
 const STATUS_STEPS = [
-  { key: 'pending_payment', label: 'Order Placed', icon: CreditCard },
-  { key: 'awaiting_payment', label: 'Awaiting Verification', icon: MessageCircle },
-  { key: 'payment_verified', label: 'Payment Verified', icon: CheckCircle2 },
-  { key: 'preparing', label: 'Preparing', icon: ChefHat },
-  { key: 'ready', label: 'Ready', icon: Package },
-  { key: 'out_for_delivery', label: 'Out for Delivery', icon: Truck },
-  { key: 'delivered', label: 'Delivered', icon: CheckCircle2 },
+  { key: 'pending_payment', label: 'Order Placed', icon: CreditCard, color: 'bg-slate-500', ring: 'ring-slate-100', text: 'text-slate-600' },
+  { key: 'awaiting_payment', label: 'Awaiting Verification', icon: MessageCircle, color: 'bg-yellow-500', ring: 'ring-yellow-100', text: 'text-yellow-600' },
+  { key: 'payment_verified', label: 'Payment Verified', icon: CheckCircle2, color: 'bg-emerald-500', ring: 'ring-emerald-100', text: 'text-emerald-600' },
+  { key: 'preparing', label: 'Preparing', icon: ChefHat, color: 'bg-orange-500', ring: 'ring-orange-100', text: 'text-orange-600' },
+  { key: 'ready', label: 'Ready', icon: Package, color: 'bg-blue-500', ring: 'ring-blue-100', text: 'text-blue-600' },
+  { key: 'out_for_delivery', label: 'Out for Delivery', icon: Truck, color: 'bg-indigo-500', ring: 'ring-indigo-100', text: 'text-indigo-600' },
+  { key: 'delivered', label: 'Delivered', icon: CheckCircle2, color: 'bg-green-500', ring: 'ring-green-100', text: 'text-green-600' },
 ];
 
 function TrackOrderContent() {
@@ -430,8 +430,8 @@ function TrackOrderContent() {
                               ease: "easeInOut"
                             }}
                             className={`z-10 flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-500 ${
-                              isCompleted ? 'bg-green-500 text-white shadow-md' : 'bg-background border-2 border-border text-text-muted'
-                            } ${isCurrent ? 'ring-4 ring-green-100' : ''}`}
+                              isCompleted ? `${step.color} text-white shadow-md` : 'bg-background border-2 border-border text-text-muted'
+                            } ${isCurrent ? `ring-4 ${step.ring}` : ''}`}
                           >
                             <Icon className="h-5 w-5" />
                           </motion.div>
@@ -441,7 +441,7 @@ function TrackOrderContent() {
                                 initial={{ height: 0 }}
                                 animate={{ height: isPast ? '100%' : '0%' }}
                                 transition={{ duration: 0.6, ease: "easeOut" }}
-                                className="absolute left-0 top-0 w-full bg-green-500"
+                                className={`absolute left-0 top-0 w-full ${step.color}`}
                               />
                             </div>
                           )}
@@ -454,7 +454,7 @@ function TrackOrderContent() {
                             <motion.p 
                               initial={{ opacity: 0, x: -10 }} 
                               animate={{ opacity: 1, x: 0 }} 
-                              className="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-green-600"
+                              className={`mt-0.5 flex items-center gap-1.5 text-xs font-medium ${step.text}`}
                             >
                               <Clock className="h-3.5 w-3.5 animate-pulse" /> Current status
                             </motion.p>
