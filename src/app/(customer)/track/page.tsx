@@ -163,7 +163,7 @@ function TrackOrderContent() {
 
   const currentStep = order ? getStatusStep(order.status) : -1;
   const isCancelled = order?.status === 'cancelled';
-  const canCancel = order?.status === 'pending_payment' || order?.status === 'payment_verified';
+  const canCancel = order?.status === 'pending_payment' || order?.status === 'awaiting_payment' || order?.status === 'payment_verified';
 
   const handleCancelOrder = async () => {
     if (!order || !confirm('Are you sure you want to request cancellation for this order?')) return;

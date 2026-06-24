@@ -134,7 +134,7 @@ export default function OrdersPage() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto">
-          {['all', ...ORDER_STATUS_FLOW, 'cancelled'].map((status) => (
+          {['all', ...ORDER_STATUS_FLOW, 'cancellation_requested', 'cancelled'].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
