@@ -414,7 +414,7 @@ function TrackOrderContent() {
                     </motion.div>
                   )}
 
-                  /* Status Timeline */
+                  {/* Status Timeline */}
                   <div className="space-y-0 py-4 relative">
                   {STATUS_STEPS.map((step, index) => {
                     const isCompleted = index <= currentStep;
@@ -469,6 +469,7 @@ function TrackOrderContent() {
                       </div>
                     );
                   })}
+                </div>
                 </div>
               )}
 
