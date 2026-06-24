@@ -351,8 +351,8 @@ function TrackOrderContent() {
                               <Star
                                 className={`h-8 w-8 transition-colors ${
                                   star <= (hoveredRating || rating)
-                                    ? 'fill-amber-400 text-amber-400'
-                                    : 'text-border-light'
+                                    ? 'fill-amber-400 text-amber-500'
+                                    : 'text-slate-300 stroke-2 hover:text-slate-400'
                                 }`}
                               />
                             </button>
