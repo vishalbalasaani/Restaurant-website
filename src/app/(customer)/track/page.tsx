@@ -111,7 +111,18 @@ function TrackOrderContent() {
 
       // Remove cancelled or fully rated orders from active tabs
       if (data.status === 'cancelled' || (data.status === 'delivered' && data.rating)) {
-        removeOrderFromStorage(data.order_number);
+        const remaining = removeOrderFromStorage(data.order_number);
+        if (remaining.length > 0) {
+          const nextOrder = remaining[remaining.length - 1];
+          setOrderNumber(nextOrder);
+          window.history.replaceState(null, '', `/track?order=${nextOrder}`);
+          performSearch(nextOrder);
+        } else {
+          window.history.replaceState(null, '', '/track');
+          setOrder(null);
+          setOrderItems([]);
+        }
+        return;
       }
 
       // Fetch order items
@@ -183,8 +194,10 @@ function TrackOrderContent() {
       const remaining = removeOrderFromStorage(order!.order_number);
       if (remaining.length > 0) {
         setOrderNumber(remaining[remaining.length - 1]);
+        window.history.replaceState(null, '', `/track?order=${remaining[remaining.length - 1]}`);
         performSearch(remaining[remaining.length - 1]);
       } else {
+        window.history.replaceState(null, '', '/track');
         setOrder(null);
       }
       return;
@@ -206,8 +219,10 @@ function TrackOrderContent() {
         const remaining = removeOrderFromStorage(order!.order_number);
         if (remaining.length > 0) {
           setOrderNumber(remaining[remaining.length - 1]);
+          window.history.replaceState(null, '', `/track?order=${remaining[remaining.length - 1]}`);
           performSearch(remaining[remaining.length - 1]);
         } else {
+          window.history.replaceState(null, '', '/track');
           setOrder(null); // Clear tracker view to go back to search
         }
       }, 2500);
