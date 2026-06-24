@@ -26,7 +26,11 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
-        className="fixed left-0 right-0 top-0 z-50 transition-all duration-300 bg-primary/95 shadow-lg backdrop-blur-md border-b border-white/10"
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 border-b ${
+          isScrolled 
+            ? 'bg-primary/85 shadow-lg backdrop-blur-md border-white/10' 
+            : 'bg-primary/50 backdrop-blur-sm border-white/5'
+        }`}
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
           {/* Logo */}
@@ -104,7 +108,7 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden border-t border-border/10 bg-white md:hidden"
+              className="overflow-hidden border-t border-white/10 bg-primary/95 backdrop-blur-xl md:hidden shadow-2xl"
             >
               <div className="space-y-1 px-4 py-4">
                 {NAV_LINKS.map((link) => (
@@ -112,7 +116,7 @@ export default function Navbar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block rounded-lg px-4 py-3 font-body text-sm font-medium text-text-light transition-colors hover:bg-background hover:text-primary"
+                    className="block rounded-lg px-4 py-3 font-body text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                   >
                     {link.label}
                   </Link>
@@ -120,7 +124,7 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block rounded-lg px-4 py-3 font-body text-sm font-medium text-text-light transition-colors hover:bg-background hover:text-primary"
+                  className="block rounded-lg px-4 py-3 font-body text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   Admin Login
                 </Link>
