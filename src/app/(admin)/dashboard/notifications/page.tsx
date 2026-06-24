@@ -98,7 +98,7 @@ export default function LiveOrdersPage() {
             {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
             <span className="truncate">Approve</span>
           </button>
-          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'preparing')} className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 font-button text-sm font-bold text-text transition-colors hover:bg-background disabled:opacity-70">
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'awaiting_payment')} className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 font-button text-sm font-bold text-text transition-colors hover:bg-background disabled:opacity-70">
             {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
             <span className="truncate">Deny</span>
           </button>
