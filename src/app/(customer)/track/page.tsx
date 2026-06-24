@@ -107,8 +107,8 @@ function TrackOrderContent() {
 
       setOrder(data);
 
-      // If the order is already rated, we don't need to keep it in the active tabs anymore
-      if (data.status === 'delivered' && data.rating) {
+      // Remove cancelled or fully rated orders from active tabs
+      if (data.status === 'cancelled' || (data.status === 'delivered' && data.rating)) {
         removeOrderFromStorage(data.order_number);
       }
 
