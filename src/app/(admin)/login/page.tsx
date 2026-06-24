@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck, Eye, EyeOff, ChefHat } from 'lucide-react';
@@ -13,6 +13,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Force logout whenever visiting the login page so users are forced to re-enter credentials
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.signOut();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

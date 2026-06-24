@@ -51,7 +51,7 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              href="/signin"
+              href="/login"
               className="font-body text-sm font-medium transition-colors hover:text-accent text-white/90"
             >
               Admin Login
@@ -118,7 +118,7 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <Link
-                  href="/signin"
+                  href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block rounded-lg px-4 py-3 font-body text-sm font-medium text-text-light transition-colors hover:bg-background hover:text-primary"
                 >
