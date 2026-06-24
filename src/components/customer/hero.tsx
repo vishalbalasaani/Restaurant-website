@@ -54,26 +54,6 @@ export default function Hero() {
           delivered straight to your doorstep.
         </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
-        >
-          <Link
-            href="/menu"
-            className="group flex items-center gap-2 rounded-full bg-accent px-8 py-4 font-button text-base font-semibold text-primary transition-all duration-300 hover:bg-accent-light hover:shadow-lg hover:shadow-accent/20"
-          >
-            Order Now
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-          <Link
-            href="/menu"
-            className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 font-button text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
-          >
-            View Menu
-          </Link>
-        </motion.div>
       </div>
 
       {/* Bottom Gradient Fade */}
