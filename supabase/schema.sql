@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS orders (
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public can create orders" ON orders FOR INSERT WITH CHECK (true);
 CREATE POLICY "Public can read own orders" ON orders FOR SELECT USING (true);
+CREATE POLICY "Public can update orders" ON orders FOR UPDATE USING (true);
 CREATE POLICY "Authenticated can manage orders" ON orders FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- =============================================

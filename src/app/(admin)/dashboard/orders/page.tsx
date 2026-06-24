@@ -189,6 +189,17 @@ export default function OrdersPage() {
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-text">{order.customer_name}</p>
                       <p className="text-xs text-text-muted">{order.customer_phone}</p>
+                      {order.customer_address && order.customer_address !== 'Pickup/Dine-in' && (
+                        <p className="mt-1 text-xs text-text-light max-w-[150px] leading-tight line-clamp-2">
+                          <span className="font-semibold text-text-muted">Delivery: </span>
+                          {order.customer_address}
+                        </p>
+                      )}
+                      {order.customer_address === 'Pickup/Dine-in' && (
+                        <span className="mt-1 inline-block rounded bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+                          Pickup
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 max-w-[200px]">
                       <div className="flex flex-col gap-1">
@@ -233,11 +244,18 @@ export default function OrdersPage() {
                         </select>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 min-w-[120px]">
                       {order.rating ? (
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-semibold text-text">{order.rating}</span>
-                          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm font-semibold text-text">{order.rating}</span>
+                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                          </div>
+                          {order.review_comment && (
+                            <p className="text-[11px] leading-snug text-text-light italic line-clamp-2">
+                              "{order.review_comment}"
+                            </p>
+                          )}
                         </div>
                       ) : (
                         <span className="text-sm text-text-muted">-</span>
