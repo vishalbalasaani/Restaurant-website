@@ -6,7 +6,7 @@ import { BellRing, Check, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Order } from '@/lib/types';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, playBuzzer } from '@/lib/utils';
 
 export function IncomingOrders() {
   const [queue, setQueue] = useState<Order[]>([]);
@@ -22,13 +22,8 @@ export function IncomingOrders() {
         { event: 'INSERT', schema: 'public', table: 'orders' },
         (payload) => {
           const newOrder = payload.new as Order;
-          // Play a small beep tone (if browser allows)
-          try {
-            const audio = new Audio('/notification.mp3');
-            audio.play().catch(() => {});
-          } catch {
-            // Ignore if audio fails
-          }
+          // Play a distinct 3-chime restaurant buzzer tone
+          playBuzzer();
           
           setTimeout(() => {
             supabase.from('order_items').select('*').eq('order_id', newOrder.id).then(({ data }) => {

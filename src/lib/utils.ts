@@ -66,7 +66,37 @@ export function getStatusStep(status: string): number {
     delivered: 5,
     cancelled: -1,
   };
-  return steps[status] ?? 0;
+  return steps[status] ?? -1;
+}
+
+export function playBuzzer() {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    
+    const ctx = new AudioContext();
+    
+    // Play 3 short distinct "ding" alerts
+    for (let i = 0; i < 3; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime + i * 0.25); // A5 note
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.25);
+      gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + i * 0.25 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.25 + 0.2);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start(ctx.currentTime + i * 0.25);
+      osc.stop(ctx.currentTime + i * 0.25 + 0.2);
+    }
+  } catch {
+    // Ignore if AudioContext is blocked by browser interaction policies
+  }
 }
 
 export function formatDate(dateString: string): string {

@@ -6,7 +6,7 @@ import { AlertCircle, Check, Eye, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Order } from '@/lib/types';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, playBuzzer } from '@/lib/utils';
 
 export function CancellationRequests() {
   const [queue, setQueue] = useState<Order[]>([]);
@@ -25,12 +25,8 @@ export function CancellationRequests() {
           const oldOrder = payload.old as Order;
           
           if (newOrder.status === 'cancellation_requested' && oldOrder.status !== 'cancellation_requested') {
-            try {
-              const audio = new Audio('/notification.mp3');
-              audio.play().catch(() => {});
-            } catch {
-              // Ignore if audio fails
-            }
+            // Play a distinct 3-chime restaurant buzzer tone
+            playBuzzer();
             
             supabase.from('order_items').select('*').eq('order_id', newOrder.id).then(({ data }) => {
               if (data) newOrder.order_items = data;
