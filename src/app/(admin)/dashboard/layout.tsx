@@ -16,11 +16,9 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
-import { IncomingOrders } from '@/components/admin/incoming-orders';
-import { CancellationRequests } from '@/components/admin/cancellation-requests';
-
 const NAV_ITEMS = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Live Orders', href: '/dashboard/notifications', icon: ChefHat },
   { label: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
   { label: 'Menu', href: '/dashboard/menu', icon: UtensilsCrossed },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
@@ -178,9 +176,6 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
-
-      <IncomingOrders />
-      <CancellationRequests />
     </div>
   );
 }
