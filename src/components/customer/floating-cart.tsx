@@ -29,7 +29,7 @@ export default function FloatingCart() {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-lg md:bottom-8"
+        className="fixed bottom-12 left-4 right-4 z-[100] mx-auto max-w-lg md:bottom-8"
       >
         <Link href="/cart">
           <div className="flex items-center justify-between rounded-2xl bg-primary/95 backdrop-blur-lg border border-white/10 px-6 py-4 shadow-2xl shadow-black/50 transition-transform hover:-translate-y-1 active:scale-[0.98]">
