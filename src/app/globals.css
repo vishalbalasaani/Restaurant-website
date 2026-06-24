@@ -1,0 +1,194 @@
+/* ===== Fontshare CDN Imports (must come before tailwindcss) ===== */
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&display=swap');
+
+@import 'tailwindcss';
+
+/* ===== Tailwind v4 Theme Configuration ===== */
+@theme {
+  /* Colors */
+  --color-primary: #2C1810;
+  --color-primary-light: #3D251B;
+  --color-primary-dark: #1A0E0A;
+  --color-secondary: #8B5E3C;
+  --color-secondary-light: #A67B5B;
+  --color-secondary-dark: #6B4A2E;
+  --color-accent: #D4A373;
+  --color-accent-light: #E0B88A;
+  --color-accent-dark: #C08B5C;
+  --color-background: #FAF7F2;
+  --color-background-dark: #F0EBE3;
+  --color-card: #FFFFFF;
+  --color-card-hover: #FDFCFA;
+  --color-text: #1A1A1A;
+  --color-text-light: #6B6B6B;
+  --color-text-muted: #999999;
+  --color-border: #E5E5E5;
+  --color-border-light: #F0F0F0;
+  --color-success: #2D8A4E;
+  --color-warning: #E6A817;
+  --color-error: #D93025;
+  --color-info: #1A73E8;
+
+  /* Fonts */
+  --font-heading: 'Clash Display', sans-serif;
+  --font-body: 'General Sans', sans-serif;
+  --font-button: 'Cabinet Grotesk', sans-serif;
+
+  /* Animation */
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-up: slide-up 0.5s ease-out;
+  --animate-slide-down: slide-down 0.3s ease-out;
+  --animate-scale-in: scale-in 0.3s ease-out;
+  --animate-spin-slow: spin 3s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+
+/* ===== Base Styles ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+button, [role="button"] {
+  font-family: var(--font-button);
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-secondary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* ===== Selection ===== */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
+}
+
+/* ===== Focus Styles ===== */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ===== Utility Classes ===== */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-secondary) 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(180deg, rgba(44, 24, 16, 0.7) 0%, rgba(44, 24, 16, 0.4) 50%, rgba(44, 24, 16, 0.8) 100%);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Card Shadow ===== */
+.card-shadow {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.card-shadow-hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06), 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Status Badge Colors ===== */
+.status-pending { background-color: #FFF3E0; color: #E65100; }
+.status-verified { background-color: #E3F2FD; color: #1565C0; }
+.status-preparing { background-color: #FFF8E1; color: #F57F17; }
+.status-ready { background-color: #E8F5E9; color: #2E7D32; }
+.status-delivery { background-color: #E1F5FE; color: #0277BD; }
+.status-delivered { background-color: #E8F5E9; color: #1B5E20; }
+.status-cancelled { background-color: #FFEBEE; color: #C62828; }
+
+/* ===== Veg/Non-Veg Indicators ===== */
+.veg-indicator {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #2E7D32;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.veg-indicator::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #2E7D32;
+}
+
+.nonveg-indicator {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #C62828;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nonveg-indicator::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #C62828;
+}
