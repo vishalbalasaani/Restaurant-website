@@ -129,35 +129,44 @@ export function getEffectiveRestaurantStatus(settings: any | null) {
   // Are we inside standard physical operating hours?
   let isWithinPhysicalHours = false;
   if (closeTotalMinutes < openTotalMinutes) {
-    // Closes after midnight
     isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes || currentTotalMinutes < closeTotalMinutes;
   } else {
     isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes && currentTotalMinutes < closeTotalMinutes;
   }
   
-  let isEffectivelyOpen = isWithinPhysicalHours;
+  // Calculate the most recent boundary (open or close) that has passed
+  let mostRecentBoundary = new Date(0);
+  const boundaries: Date[] = [];
+  for (let offset = -2; offset <= 1; offset++) {
+     const o = new Date();
+     o.setDate(o.getDate() + offset);
+     o.setHours(openHour, openMin, 0, 0);
+     boundaries.push(o);
 
-  if (isWithinPhysicalHours && settings.kitchen_open === false) {
-    // Toggle is manually OFF. Check if it was turned off BEFORE the most recent opening boundary.
-    const lastUpdatedAt = new Date(settings.updated_at || new Date());
-    const mostRecentOpenBoundary = new Date();
-    
-    if (currentTotalMinutes < openTotalMinutes) {
-      mostRecentOpenBoundary.setDate(mostRecentOpenBoundary.getDate() - 1);
-    }
-    mostRecentOpenBoundary.setHours(openHour, openMin, 0, 0);
-    
-    if (lastUpdatedAt < mostRecentOpenBoundary) {
-      isEffectivelyOpen = true;
-    } else {
-      isEffectivelyOpen = false;
-    }
+     const c = new Date();
+     c.setDate(c.getDate() + offset);
+     c.setHours(closeHour, closeMin, 0, 0);
+     boundaries.push(c);
   }
 
-  // If outside operating hours, it is unconditionally closed
-  if (!isWithinPhysicalHours) {
-    isEffectivelyOpen = false;
+  for (const b of boundaries) {
+     if (b <= now && b > mostRecentBoundary) {
+        mostRecentBoundary = b;
+     }
   }
+
+  const lastUpdatedAt = new Date(settings.updated_at || new Date(0));
+  
+  let isKitchenOpen = isWithinPhysicalHours;
+  let isReservationsOpen = isWithinPhysicalHours;
+
+  if (lastUpdatedAt >= mostRecentBoundary) {
+      // User manually toggled after the last scheduled automation event
+      isKitchenOpen = settings.kitchen_open;
+      isReservationsOpen = settings.reservations_open;
+  }
+
+  let isEffectivelyOpen = isKitchenOpen; // keep for backward compatibility with other files
 
   let isClosingSoon = false;
   let closingTimeObj = null;
@@ -200,7 +209,15 @@ export function getEffectiveRestaurantStatus(settings: any | null) {
      }
   }
 
-  return { isOpen: isEffectivelyOpen, isClosingSoon, closingTime: closingTimeObj, isOpeningSoon, openingTime: openingTimeObj };
+  return { 
+    isOpen: isEffectivelyOpen, 
+    isKitchenOpen,
+    isReservationsOpen,
+    isClosingSoon, 
+    closingTime: closingTimeObj, 
+    isOpeningSoon, 
+    openingTime: openingTimeObj 
+  };
 }
 
 export function playBuzzer() {

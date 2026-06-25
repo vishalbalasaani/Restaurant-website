@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Store, Phone, MapPin, Clock, Globe, CreditCard } from 'lucide-react';
+import { Store, Clock, IndianRupee, Save, Phone, MapPin, Globe, CreditCard } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
+import { getEffectiveRestaurantStatus } from '@/lib/utils';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Partial<RestaurantSettings>>({
@@ -64,7 +65,8 @@ export default function SettingsPage() {
 
   const handleKitchenToggle = async () => {
     if (!settings.id) return;
-    const newValue = !settings.kitchen_open;
+    const { isKitchenOpen } = getEffectiveRestaurantStatus(settings as any);
+    const newValue = !isKitchenOpen;
     
     // Optimistic UI update
     setSettings((prev) => ({ ...prev, kitchen_open: newValue }));
@@ -95,21 +97,21 @@ export default function SettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-6 card-shadow ${settings.kitchen_open ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+        className={`rounded-2xl border p-6 card-shadow ${getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
       >
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-heading text-lg font-semibold text-primary">Kitchen Status</h3>
             <p className="text-sm text-text-light">
-              {settings.kitchen_open ? 'Kitchen is open — accepting orders' : 'Kitchen is closed — orders disabled'}
+              {getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'Kitchen is open — accepting orders' : 'Kitchen is closed — orders disabled'}
             </p>
           </div>
           <button
             type="button"
             onClick={handleKitchenToggle}
-            className={`relative h-8 w-14 rounded-full transition-colors ${settings.kitchen_open ? 'bg-green-500' : 'bg-red-400'}`}
+            className={`relative h-8 w-14 rounded-full transition-colors ${getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'bg-green-500' : 'bg-red-400'}`}
           >
-            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${settings.kitchen_open ? 'left-7' : 'left-1'}`} />
+            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'left-7' : 'left-1'}`} />
           </button>
         </div>
       </motion.div>
@@ -118,20 +120,21 @@ export default function SettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-6 card-shadow ${settings.reservations_open ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+        className={`rounded-2xl border p-6 card-shadow ${getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
       >
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-heading text-lg font-semibold text-primary">Table Reservations</h3>
             <p className="text-sm text-text-light">
-              {settings.reservations_open ? 'Reservations are open — customers can book tables' : 'Reservations are closed — bookings disabled'}
+              {getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'Reservations are open — customers can book tables' : 'Reservations are closed — bookings disabled'}
             </p>
           </div>
           <button
             type="button"
             onClick={async () => {
               if (!settings.id) return;
-              const newValue = !settings.reservations_open;
+              const { isReservationsOpen } = getEffectiveRestaurantStatus(settings as any);
+              const newValue = !isReservationsOpen;
               setSettings((prev) => ({ ...prev, reservations_open: newValue }));
               try {
                 const supabase = createClient();
@@ -140,9 +143,9 @@ export default function SettingsPage() {
                 setSettings((prev) => ({ ...prev, reservations_open: !newValue }));
               }
             }}
-            className={`relative h-8 w-14 rounded-full transition-colors ${settings.reservations_open ? 'bg-green-500' : 'bg-red-400'}`}
+            className={`relative h-8 w-14 rounded-full transition-colors ${getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'bg-green-500' : 'bg-red-400'}`}
           >
-            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${settings.reservations_open ? 'left-7' : 'left-1'}`} />
+            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'left-7' : 'left-1'}`} />
           </button>
         </div>
       </motion.div>
