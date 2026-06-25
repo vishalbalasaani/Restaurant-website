@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp, ShoppingBag, IndianRupee, Truck, CheckCircle2, Clock } from 'lucide-react';
+import { BarChart3, TrendingUp, ShoppingBag, IndianRupee } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { createClient } from '@/lib/supabase/client';
 import { formatPrice } from '@/lib/utils';
-import type { Driver } from '@/lib/types';
-import Image from 'next/image';
 
 interface DailyData {
   date: string;
@@ -19,11 +17,6 @@ interface StatusData {
   name: string;
   value: number;
   color: string;
-}
-
-interface DriverStat extends Driver {
-  delivered_orders: number;
-  active_orders: number;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -42,7 +35,6 @@ export default function AnalyticsPage() {
   const [totals, setTotals] = useState({ totalOrders: 0, totalRevenue: 0, avgOrder: 0 });
   const [period, setPeriod] = useState<'7' | '30'>('7');
   const [loading, setLoading] = useState(true);
-  const [driverStats, setDriverStats] = useState<DriverStat[]>([]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -101,24 +93,6 @@ export default function AnalyticsPage() {
           totalRevenue,
           avgOrder: validOrders.length > 0 ? totalRevenue / validOrders.length : 0,
         });
-
-        // Fetch Drivers
-        const { data: driversData } = await supabase.from('drivers').select('*').order('name');
-        
-        // Fetch all orders for drivers to get total all-time counts
-        const { data: allOrders } = await supabase.from('orders').select('driver_id, status').not('driver_id', 'is', null);
-        
-        if (driversData) {
-          const stats: DriverStat[] = driversData.map((d: Driver) => {
-            const driverOrders = allOrders?.filter(o => o.driver_id === d.id) || [];
-            return {
-              ...d,
-              delivered_orders: driverOrders.filter(o => o.status === 'delivered').length,
-              active_orders: driverOrders.filter(o => o.status === 'out_for_delivery').length,
-            };
-          });
-          setDriverStats(stats);
-        }
 
       } catch {
         // Fallback
@@ -258,70 +232,6 @@ export default function AnalyticsPage() {
             </>
           )}
         </motion.div>
-      </div>
-
-      {/* Driver Performance Section */}
-      <div className="mt-8">
-        <h2 className="mb-4 font-heading text-xl font-bold text-primary">Fleet Status & Performance</h2>
-        {loading ? (
-          <div className="flex h-32 items-center justify-center rounded-2xl border border-border bg-card">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
-        ) : driverStats.length === 0 ? (
-          <div className="flex h-32 flex-col items-center justify-center rounded-2xl border border-border bg-card text-text-light">
-            <Truck className="mb-2 h-8 w-8 opacity-50" />
-            <p>No drivers found. Add drivers from the Live Orders board.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {driverStats.map((driver) => (
-              <motion.div 
-                key={driver.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="p-5 flex items-center gap-4 border-b border-border bg-background/50">
-                  <div className="relative h-16 w-16 shrink-0 rounded-full overflow-hidden border-2 border-border shadow-sm">
-                    <Image src={driver.photo_url} alt={driver.name} fill className="object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-heading font-bold text-text truncate">{driver.name}</h3>
-                      <span className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        driver.availability_status === 'Available' 
-                          ? 'bg-green-100 text-green-700 border border-green-200' 
-                          : 'bg-blue-100 text-blue-700 border border-blue-200'
-                      }`}>
-                        {driver.availability_status === 'Available' ? <CheckCircle2 className="h-3 w-3" /> : <Truck className="h-3 w-3" />}
-                        {driver.availability_status}
-                      </span>
-                    </div>
-                    <p className="text-xs font-medium text-text-light">{driver.mobile_number}</p>
-                    <div className="inline-block mt-1.5 rounded bg-accent/10 px-2 py-0.5 text-xs font-bold text-accent border border-accent/20">
-                      {driver.vehicle_number}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 divide-x divide-border bg-card p-4">
-                  <div className="flex flex-col items-center justify-center text-center">
-                    <span className="text-xs font-medium uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
-                      <CheckCircle2 className="h-3.5 w-3.5" /> Total Delivered
-                    </span>
-                    <span className="font-heading text-2xl font-bold text-text">{driver.delivered_orders}</span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center text-center">
-                    <span className="text-xs font-medium uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5" /> Active Runs
-                    </span>
-                    <span className="font-heading text-2xl font-bold text-accent">{driver.active_orders}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
       </div>
 
     </div>

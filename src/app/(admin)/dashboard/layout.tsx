@@ -13,6 +13,7 @@ import {
   ChefHat,
   Menu,
   X,
+  Truck,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { label: 'Live Orders', href: '/dashboard/notifications', icon: ChefHat },
   { label: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
   { label: 'Menu', href: '/dashboard/menu', icon: UtensilsCrossed },
+  { label: 'Drivers', href: '/dashboard/drivers', icon: Truck },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];

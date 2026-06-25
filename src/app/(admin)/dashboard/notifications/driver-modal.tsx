@@ -51,6 +51,7 @@ export function DriverAssignmentModal({ order, onClose, onAssigned }: DriverModa
       .from('drivers')
       .select('*')
       .eq('availability_status', 'Available')
+      .eq('is_active', true)
       .order('name');
     
     if (data) {
@@ -100,7 +101,8 @@ export function DriverAssignmentModal({ order, onClose, onAssigned }: DriverModa
           mobile_number: newMobile,
           vehicle_number: newVehicle,
           photo_url: publicUrl,
-          availability_status: 'Available'
+          availability_status: 'Available',
+          is_active: true
         });
 
       if (insertError) throw insertError;
