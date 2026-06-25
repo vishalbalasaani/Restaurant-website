@@ -2,39 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Store, Clock, IndianRupee, Save, Phone, MapPin, Globe, CreditCard } from 'lucide-react';
+import { Save, Store, Phone, MapPin, Clock, Globe, CreditCard } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
-import { getEffectiveRestaurantStatus } from '@/lib/utils';
-
-const TIME_SLOTS = Array.from({ length: 48 }).map((_, i) => {
-  const h = Math.floor(i / 2);
-  const m = i % 2 === 0 ? '00' : '30';
-  const val = `${h.toString().padStart(2, '0')}:${m}`;
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const displayH = h % 12 || 12;
-  const label = `${displayH.toString().padStart(2, '0')}:${m} ${ampm}`;
-  return { val, label };
-});
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Partial<RestaurantSettings>>({
-    business_name: '',
-    phone: '',
-    whatsapp: '',
-    instagram: '',
-    address: '',
-    opening_time: new Date().toISOString(),
-    closing_time: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+    business_name: 'Flavour House',
+    phone: '+91 98765 43210',
+    whatsapp: '919876543210',
+    instagram: 'https://instagram.com/flavourhouse',
+    address: '42, Spice Lane, Jubilee Hills, Hyderabad — 500033',
+    opening_time: '11:00',
+    closing_time: '23:00',
     kitchen_open: true,
-    reservations_open: true,
-    upi_id: '',
-    bank_details: '',
+    upi_id: 'flavourhouse@upi',
+    bank_details: 'HDFC Bank | A/C: 1234567890 | IFSC: HDFC0001234',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -49,25 +36,6 @@ export default function SettingsPage() {
       }
     };
     fetchSettings();
-
-    const supabase = createClient();
-    const channel = supabase
-      .channel('public:restaurant_settings:dashboard')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'restaurant_settings' }, (payload) => {
-        setSettings(payload.new as RestaurantSettings);
-      })
-      .subscribe();
-
-    // Force re-render every second to keep effective status perfectly synced
-    // with the physical passing of time without needing a page refresh.
-    const interval = setInterval(() => {
-      setTick(t => t + 1); 
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -76,26 +44,11 @@ export default function SettingsPage() {
     setSaved(false);
     try {
       const supabase = createClient();
-      const { id, updated_at, ...updateData } = settings as RestaurantSettings;
-      
-      // Sync the physical DB toggles with the current effective status
-      // This ensures that if the DB auto-updates `updated_at`, it doesn't accidentally
-      // lock in an "override" state that contradicts the schedule they just saved.
-      const status = getEffectiveRestaurantStatus(settings);
-      updateData.kitchen_open = status.isKitchenOpen;
-      updateData.reservations_open = status.isReservationsOpen;
-
+      const { id, ...updateData } = settings as RestaurantSettings;
       await supabase
         .from('restaurant_settings')
-        .update(updateData)
+        .update({ ...updateData, updated_at: new Date().toISOString() })
         .eq('id', id);
-        
-      // Update local state to match what we just saved
-      setSettings((prev) => ({
-        ...prev,
-        kitchen_open: status.isKitchenOpen,
-        reservations_open: status.isReservationsOpen,
-      }));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {
@@ -111,8 +64,7 @@ export default function SettingsPage() {
 
   const handleKitchenToggle = async () => {
     if (!settings.id) return;
-    const { isKitchenOpen } = getEffectiveRestaurantStatus(settings as any);
-    const newValue = !isKitchenOpen;
+    const newValue = !settings.kitchen_open;
     
     // Optimistic UI update
     setSettings((prev) => ({ ...prev, kitchen_open: newValue }));
@@ -143,21 +95,21 @@ export default function SettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-6 card-shadow ${getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+        className={`rounded-2xl border p-6 card-shadow ${settings.kitchen_open ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
       >
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-heading text-lg font-semibold text-primary">Kitchen Status</h3>
             <p className="text-sm text-text-light">
-              {getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'Kitchen is open — accepting orders' : 'Kitchen is closed — orders disabled'}
+              {settings.kitchen_open ? 'Kitchen is open — accepting orders' : 'Kitchen is closed — orders disabled'}
             </p>
           </div>
           <button
             type="button"
             onClick={handleKitchenToggle}
-            className={`relative h-8 w-14 rounded-full transition-colors ${getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'bg-green-500' : 'bg-red-400'}`}
+            className={`relative h-8 w-14 rounded-full transition-colors ${settings.kitchen_open ? 'bg-green-500' : 'bg-red-400'}`}
           >
-            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${getEffectiveRestaurantStatus(settings as any).isKitchenOpen ? 'left-7' : 'left-1'}`} />
+            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${settings.kitchen_open ? 'left-7' : 'left-1'}`} />
           </button>
         </div>
       </motion.div>
@@ -166,21 +118,20 @@ export default function SettingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-6 card-shadow ${getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+        className={`rounded-2xl border p-6 card-shadow ${settings.reservations_open ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
       >
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-heading text-lg font-semibold text-primary">Table Reservations</h3>
             <p className="text-sm text-text-light">
-              {getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'Reservations are open — customers can book tables' : 'Reservations are closed — bookings disabled'}
+              {settings.reservations_open ? 'Reservations are open — customers can book tables' : 'Reservations are closed — bookings disabled'}
             </p>
           </div>
           <button
             type="button"
             onClick={async () => {
               if (!settings.id) return;
-              const { isReservationsOpen } = getEffectiveRestaurantStatus(settings as any);
-              const newValue = !isReservationsOpen;
+              const newValue = !settings.reservations_open;
               setSettings((prev) => ({ ...prev, reservations_open: newValue }));
               try {
                 const supabase = createClient();
@@ -189,9 +140,9 @@ export default function SettingsPage() {
                 setSettings((prev) => ({ ...prev, reservations_open: !newValue }));
               }
             }}
-            className={`relative h-8 w-14 rounded-full transition-colors ${getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'bg-green-500' : 'bg-red-400'}`}
+            className={`relative h-8 w-14 rounded-full transition-colors ${settings.reservations_open ? 'bg-green-500' : 'bg-red-400'}`}
           >
-            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${getEffectiveRestaurantStatus(settings as any).isReservationsOpen ? 'left-7' : 'left-1'}`} />
+            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${settings.reservations_open ? 'left-7' : 'left-1'}`} />
           </button>
         </div>
       </motion.div>
@@ -237,11 +188,11 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="settingsOpeningTime" className="mb-1.5 block text-sm font-medium text-text">Opening Time</label>
-            <input id="settingsOpeningTime" type="time" value={settings.opening_time ? settings.opening_time.split('T')[1]?.substring(0, 5) || settings.opening_time.substring(0, 5) : ''} onChange={(e) => handleChange('opening_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
+            <input id="settingsOpeningTime" type="time" value={settings.opening_time || '11:00'} onChange={(e) => handleChange('opening_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
           </div>
           <div>
             <label htmlFor="settingsClosingTime" className="mb-1.5 block text-sm font-medium text-text">Closing Time</label>
-            <input id="settingsClosingTime" type="time" value={settings.closing_time ? settings.closing_time.split('T')[1]?.substring(0, 5) || settings.closing_time.substring(0, 5) : ''} onChange={(e) => handleChange('closing_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
+            <input id="settingsClosingTime" type="time" value={settings.closing_time || '23:00'} onChange={(e) => handleChange('closing_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
           </div>
         </div>
       </motion.div>

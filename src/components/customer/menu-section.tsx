@@ -93,6 +93,13 @@ export default function MenuSection() {
 
   return (
     <>
+      {!kitchenOpen && (
+        <div className="bg-red-50 py-3 text-center border-b border-red-100">
+          <p className="text-red-600 font-medium text-sm">
+            The kitchen is currently closed. We are not accepting orders right now.
+          </p>
+        </div>
+      )}
       <section id="menu" className="py-16 md:py-24">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           {/* Section Header */}

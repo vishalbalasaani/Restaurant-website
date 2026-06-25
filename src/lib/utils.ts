@@ -107,46 +107,6 @@ export function getStatusStep(status: string): number {
   return steps[status] ?? -1;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getEffectiveRestaurantStatus(settings: any | null) {
-  if (!settings) {
-    return {
-      isOpen: false,
-      isKitchenOpen: false,
-      isReservationsOpen: false,
-      isEffectivelyOpen: false,
-      isTemporarilyClosed: false,
-      isReservationsTemporarilyClosed: false,
-      isClosingSoon: false,
-      isOpeningSoon: false,
-      closingTimeObj: null,
-      openingTimeObj: null,
-      closingTime: null,
-      openingTime: null,
-    };
-  }
-
-  // The user requested NO AUTOMATIC TOGGLES. 
-  // We strictly use the manual toggles from the database.
-  const isKitchenOpen = Boolean(settings.kitchen_open);
-  const isReservationsOpen = Boolean(settings.reservations_open);
-
-  return {
-    isOpen: isKitchenOpen,
-    isKitchenOpen,
-    isReservationsOpen,
-    isEffectivelyOpen: isKitchenOpen,
-    isTemporarilyClosed: !isKitchenOpen,
-    isReservationsTemporarilyClosed: !isReservationsOpen,
-    isClosingSoon: false,
-    isOpeningSoon: false,
-    closingTimeObj: null,
-    openingTimeObj: null,
-    closingTime: settings.closing_time,
-    openingTime: settings.opening_time,
-  };
-}
-
 export function playBuzzer() {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

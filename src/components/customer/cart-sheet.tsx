@@ -120,8 +120,7 @@ export default function CartSheet({ isOpen, onClose }: CartSheetProps) {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                              disabled={!kitchenOpen}
-                              className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-text-light transition-colors hover:border-accent hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-text-light transition-colors hover:border-accent hover:text-accent"
                             >
                               <Minus className="h-3 w-3" />
                             </button>
@@ -130,8 +129,7 @@ export default function CartSheet({ isOpen, onClose }: CartSheetProps) {
                             </span>
                             <button
                               onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                              disabled={!kitchenOpen}
-                              className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-white transition-colors hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-white transition-colors hover:bg-primary-light"
                             >
                               <Plus className="h-3 w-3" />
                             </button>

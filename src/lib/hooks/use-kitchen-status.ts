@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { getEffectiveRestaurantStatus } from '@/lib/utils';
-import type { RestaurantSettings } from '@/lib/types';
 
 export function useKitchenStatus() {
   const [kitchenOpen, setKitchenOpen] = useState(true);
@@ -12,11 +10,8 @@ export function useKitchenStatus() {
     
     const fetchStatus = async () => {
       try {
-        const { data } = await supabase.from('restaurant_settings').select('*').single();
-        if (data) {
-          const { isKitchenOpen } = getEffectiveRestaurantStatus(data as RestaurantSettings);
-          setKitchenOpen(isKitchenOpen);
-        }
+        const { data } = await supabase.from('restaurant_settings').select('kitchen_open').single();
+        if (data) setKitchenOpen(data.kitchen_open);
       } catch (e) {
         // fail silently
       } finally {
@@ -32,9 +27,8 @@ export function useKitchenStatus() {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'restaurant_settings' },
         (payload) => {
-          if (payload.new) {
-            const { isKitchenOpen } = getEffectiveRestaurantStatus(payload.new as RestaurantSettings);
-            setKitchenOpen(isKitchenOpen);
+          if (payload.new && typeof payload.new.kitchen_open !== 'undefined') {
+            setKitchenOpen(payload.new.kitchen_open);
           }
         }
       )
@@ -43,21 +37,6 @@ export function useKitchenStatus() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  // Also set up a timer to check effectively open status every minute
-  // so it flips exactly when the time changes
-  useEffect(() => {
-    const interval = setInterval(() => {
-       const supabase = createClient();
-       supabase.from('restaurant_settings').select('*').single().then(({ data }) => {
-          if (data) {
-             const { isKitchenOpen } = getEffectiveRestaurantStatus(data as RestaurantSettings);
-             setKitchenOpen(isKitchenOpen);
-          }
-       });
-    }, 60000);
-    return () => clearInterval(interval);
   }, []);
 
   return { kitchenOpen, loading };
