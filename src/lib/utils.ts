@@ -180,9 +180,15 @@ export function formatDate(dateString: string): string {
 }
 
 export function formatTime(timeString: string): string {
-  const [hours, minutes] = timeString.split(':');
-  const date = new Date();
-  date.setHours(parseInt(hours), parseInt(minutes));
+  if (!timeString) return '';
+  let date: Date;
+  if (timeString.includes('T')) {
+    date = new Date(timeString);
+  } else {
+    const [hours, minutes] = timeString.split(':');
+    date = new Date();
+    date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+  }
   return new Intl.DateTimeFormat('en-IN', {
     hour: 'numeric',
     minute: '2-digit',

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import ProductCard from './product-card';
 import { useKitchenStatus } from '@/lib/hooks/use-kitchen-status';
+import { formatTime } from '@/lib/utils';
 import type { Product, Category } from '@/lib/types';
 
 // Fallback data for when Supabase is not configured
@@ -40,7 +41,7 @@ export default function MenuSection() {
   const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const { kitchenOpen } = useKitchenStatus();
+  const { kitchenOpen, openingTime } = useKitchenStatus();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,6 +98,11 @@ export default function MenuSection() {
         <div className="bg-red-50 py-3 text-center border-b border-red-100">
           <p className="text-red-600 font-medium text-sm">
             The kitchen is currently closed. We are not accepting orders right now.
+            {openingTime && (
+              <span className="ml-1 font-bold">
+                We will open again at {formatTime(openingTime)}.
+              </span>
+            )}
           </p>
         </div>
       )}

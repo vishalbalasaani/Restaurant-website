@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag, Send } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag, Send, ChefHat } from 'lucide-react';
 import { useCartStore } from '@/lib/store/cart-store';
-import { formatPrice, generateOrderNumber, getWhatsAppLink, formatOrderForWhatsApp } from '@/lib/utils';
+import { formatPrice, generateOrderNumber, getWhatsAppLink, formatOrderForWhatsApp, formatTime } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { useKitchenStatus } from '@/lib/hooks/use-kitchen-status';
 import type { CheckoutFormData } from '@/lib/types';
@@ -27,7 +27,7 @@ export default function CartPage() {
     notes: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<CheckoutFormData>>({});
-  const { kitchenOpen } = useKitchenStatus();
+  const { kitchenOpen, openingTime } = useKitchenStatus();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -205,10 +205,22 @@ export default function CartPage() {
         </div>
 
         {!kitchenOpen && items.length > 0 && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-center">
-            <h3 className="font-heading text-lg font-semibold text-red-700">Kitchen is Closed</h3>
-            <p className="text-sm text-red-600">We are currently not accepting orders. Please check back later.</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 rounded-2xl border border-red-100 bg-red-50 p-6 shadow-sm"
+          >
+            <div className="flex items-center gap-3 text-red-600">
+              <ChefHat className="h-6 w-6" />
+              <div>
+                <h3 className="font-heading font-semibold">Kitchen is currently closed</h3>
+                <p className="text-sm opacity-90">
+                  We are not accepting orders right now.
+                  {openingTime && ` We will open again at ${formatTime(openingTime)}.`}
+                </p>
+              </div>
+            </div>
+          </motion.div>
         )}
 
         {items.length === 0 ? (
