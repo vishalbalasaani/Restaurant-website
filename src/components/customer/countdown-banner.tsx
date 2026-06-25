@@ -9,6 +9,7 @@ import type { RestaurantSettings } from '@/lib/types';
 export default function CountdownBanner() {
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
   const [countdownStr, setCountdownStr] = useState<string | null>(null);
+  const [openingStr, setOpeningStr] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
@@ -51,6 +52,20 @@ export default function CountdownBanner() {
       } else {
         setCountdownStr(null);
       }
+      
+      if (status.isOpeningSoon && status.openingTime) {
+        const now = new Date();
+        const diffMs = status.openingTime.getTime() - now.getTime();
+        if (diffMs > 0) {
+          const m = Math.floor(diffMs / 60000);
+          const s = Math.floor((diffMs % 60000) / 1000);
+          setOpeningStr(`${m}m ${s}s`);
+        } else {
+          setOpeningStr(null);
+        }
+      } else {
+        setOpeningStr(null);
+      }
     };
 
     updateCountdown();
@@ -63,6 +78,15 @@ export default function CountdownBanner() {
       <div className="bg-accent w-full text-white px-4 py-2 text-center text-sm font-bold flex items-center justify-center gap-2">
         <Clock className="w-4 h-4 animate-pulse" />
         Restaurant will close in {countdownStr}
+      </div>
+    );
+  }
+  
+  if (!isOpen && openingStr) {
+    return (
+      <div className="bg-blue-600 w-full text-white px-4 py-2 text-center text-sm font-bold flex items-center justify-center gap-2">
+        <Clock className="w-4 h-4 animate-pulse" />
+        Restaurant opening in {openingStr}
       </div>
     );
   }

@@ -107,37 +107,49 @@ export function getStatusStep(status: string): number {
   return steps[status] ?? -1;
 }
 
-export function getEffectiveRestaurantStatus(settings: { is_open: boolean, updated_at: string } | null) {
-  if (!settings) return { isOpen: false, isClosingSoon: false, closingTime: null };
+export function getEffectiveRestaurantStatus(settings: any | null) {
+  if (!settings) return { isOpen: false, isClosingSoon: false, closingTime: null, isOpeningSoon: false, openingTime: null };
 
   const now = new Date();
   const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
   
-  // Operating hours: 11:00 AM to 11:00 PM (23:00)
-  const openHour = 11;
-  const closeHour = 23;
+  const [openHourStr, openMinStr] = (settings.opening_time || '11:00').split(':');
+  const [closeHourStr, closeMinStr] = (settings.closing_time || '23:00').split(':');
+  
+  const openHour = parseInt(openHourStr, 10);
+  const openMin = parseInt(openMinStr, 10);
+  const closeHour = parseInt(closeHourStr, 10);
+  const closeMin = parseInt(closeMinStr, 10);
+  
+  const currentTotalMinutes = currentHours * 60 + currentMinutes;
+  const openTotalMinutes = openHour * 60 + openMin;
+  const closeTotalMinutes = closeHour * 60 + closeMin;
   
   // Are we inside standard physical operating hours?
-  const isWithinPhysicalHours = currentHours >= openHour && currentHours < closeHour;
+  let isWithinPhysicalHours = false;
+  if (closeTotalMinutes < openTotalMinutes) {
+    // Closes after midnight
+    isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes || currentTotalMinutes < closeTotalMinutes;
+  } else {
+    isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes && currentTotalMinutes < closeTotalMinutes;
+  }
   
   let isEffectivelyOpen = isWithinPhysicalHours;
 
-  if (isWithinPhysicalHours && !settings.is_open) {
-    // Toggle is manually OFF. Check if it was turned off BEFORE the most recent 11:00 AM boundary.
-    const lastUpdatedAt = new Date(settings.updated_at);
+  if (isWithinPhysicalHours && settings.kitchen_open === false) {
+    // Toggle is manually OFF. Check if it was turned off BEFORE the most recent opening boundary.
+    const lastUpdatedAt = new Date(settings.updated_at || new Date());
     const mostRecentOpenBoundary = new Date();
-    mostRecentOpenBoundary.setHours(openHour, 0, 0, 0);
     
-    // If it's before 11am today, the most recent boundary was yesterday
-    if (currentHours < openHour) {
+    if (currentTotalMinutes < openTotalMinutes) {
       mostRecentOpenBoundary.setDate(mostRecentOpenBoundary.getDate() - 1);
     }
+    mostRecentOpenBoundary.setHours(openHour, openMin, 0, 0);
     
     if (lastUpdatedAt < mostRecentOpenBoundary) {
-      // Auto-turn on! (The toggle is stale from yesterday)
       isEffectivelyOpen = true;
     } else {
-      // Respect manual off from today
       isEffectivelyOpen = false;
     }
   }
@@ -148,16 +160,47 @@ export function getEffectiveRestaurantStatus(settings: { is_open: boolean, updat
   }
 
   let isClosingSoon = false;
-  let closingTime = null;
+  let closingTimeObj = null;
+  let isOpeningSoon = false;
+  let openingTimeObj = null;
 
-  // Countdown starts 1 hour before closeHour (i.e. >= 22:00)
-  if (isEffectivelyOpen && currentHours >= closeHour - 1) {
-    isClosingSoon = true;
-    closingTime = new Date();
-    closingTime.setHours(closeHour, 0, 0, 0);
+  if (isEffectivelyOpen) {
+    let diffMinutes = 0;
+    if (closeTotalMinutes < openTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
+       diffMinutes = (24 * 60 - currentTotalMinutes) + closeTotalMinutes;
+    } else {
+       diffMinutes = closeTotalMinutes - currentTotalMinutes;
+    }
+    
+    if (diffMinutes <= 60 && diffMinutes > 0) {
+      isClosingSoon = true;
+      closingTimeObj = new Date();
+      if (closeTotalMinutes < openTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
+          closingTimeObj.setDate(closingTimeObj.getDate() + 1);
+      }
+      closingTimeObj.setHours(closeHour, closeMin, 0, 0);
+    }
+  } else {
+     let diffMinutesToOpen = 0;
+     if (currentTotalMinutes >= closeTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
+        // We are past close time, open is tomorrow
+        diffMinutesToOpen = (24 * 60 - currentTotalMinutes) + openTotalMinutes;
+     } else if (currentTotalMinutes < openTotalMinutes) {
+        // We are before open time today
+        diffMinutesToOpen = openTotalMinutes - currentTotalMinutes;
+     }
+     
+     if (diffMinutesToOpen <= 60 && diffMinutesToOpen > 0) {
+        isOpeningSoon = true;
+        openingTimeObj = new Date();
+        if (currentTotalMinutes >= openTotalMinutes) {
+            openingTimeObj.setDate(openingTimeObj.getDate() + 1);
+        }
+        openingTimeObj.setHours(openHour, openMin, 0, 0);
+     }
   }
 
-  return { isOpen: isEffectivelyOpen, isClosingSoon, closingTime };
+  return { isOpen: isEffectivelyOpen, isClosingSoon, closingTime: closingTimeObj, isOpeningSoon, openingTime: openingTimeObj };
 }
 
 export function playBuzzer() {

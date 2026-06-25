@@ -330,16 +330,16 @@ export default function CartPage() {
                   Payment details will be shared after order confirmation.
                 </p>
                 <button
-                  type="submit"
-                  disabled={isSubmitting || !kitchenOpen}
-                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-6 py-4 font-button text-base font-semibold text-primary transition-all duration-300 hover:bg-accent-light hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
-                >
+                type="submit"
+                disabled={isSubmitting}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 font-bold text-white transition-all hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
+              >
                   {isSubmitting ? (
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                   ) : (
                     <>
                       <Send className="h-4 w-4" />
-                      {!kitchenOpen ? 'Kitchen Closed' : 'Place Order'}
+                      Place Order
                     </>
                   )}
                 </button>
