@@ -50,9 +50,8 @@ export default function LiveOrdersPage() {
     const supabase = createClient();
     
     // If order is delivered and has a driver, release the driver
-    if (newStatus === 'delivered' && driverId) {
-      await supabase.from('drivers').update({ availability_status: 'Returning' }).eq('id', driverId);
-    }
+    // We intentionally DO NOT update availability_status here. 
+    // They remain 'Assigned' but their active_orders will be 0, marking them as 'Returning' in the UI.
     
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
     

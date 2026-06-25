@@ -217,18 +217,21 @@ export default function DriversPage() {
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
                         Offline
                       </span>
-                    ) : (
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        driver.availability_status === 'Available' 
-                          ? 'bg-green-100 text-green-700 border border-green-200' 
-                          : driver.availability_status === 'Returning'
-                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                          : 'bg-blue-100 text-blue-700 border border-blue-200'
-                      }`}>
-                        {driver.availability_status === 'Available' ? <CheckCircle2 className="h-3 w-3" /> : driver.availability_status === 'Returning' ? <MapPin className="h-3 w-3" /> : <Truck className="h-3 w-3" />}
-                        {driver.availability_status}
-                      </span>
-                    )}
+                    ) : (() => {
+                      const isReturning = driver.availability_status === 'Assigned' && driver.active_orders === 0;
+                      return (
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                          driver.availability_status === 'Available' 
+                            ? 'bg-green-100 text-green-700 border border-green-200' 
+                            : isReturning
+                            ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                            : 'bg-blue-100 text-blue-700 border border-blue-200'
+                        }`}>
+                          {driver.availability_status === 'Available' ? <CheckCircle2 className="h-3 w-3" /> : isReturning ? <MapPin className="h-3 w-3" /> : <Truck className="h-3 w-3" />}
+                          {isReturning ? 'Returning' : driver.availability_status}
+                        </span>
+                      );
+                    })()}
                   </div>
                   <div className="flex items-center gap-3 text-sm font-medium text-text-light">
                     <span>{driver.mobile_number}</span>
@@ -259,7 +262,7 @@ export default function DriversPage() {
 
               {/* Actions */}
               <div className="flex flex-col md:flex-row items-center justify-end w-full md:w-auto shrink-0 gap-2 pl-2">
-                {driver.availability_status === 'Returning' && driver.is_active && (
+                {driver.availability_status === 'Assigned' && driver.active_orders === 0 && driver.is_active && (
                   <button
                     onClick={() => markDriverArrived(driver.id)}
                     disabled={togglingId === driver.id}

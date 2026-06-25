@@ -72,7 +72,7 @@ export interface Driver {
   mobile_number: string;
   vehicle_number: string;
   photo_url: string;
-  availability_status: 'Available' | 'Assigned' | 'Returning';
+  availability_status: 'Available' | 'Assigned';
   is_active: boolean;
   created_at: string;
   updated_at: string;
