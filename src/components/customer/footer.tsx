@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ChefHat, Phone, MapPin, Clock, AtSign } from 'lucide-react';
 import { useSettings } from '@/lib/hooks/use-settings';
+import { formatTime } from '@/lib/utils';
 
 export default function Footer() {
   const { settings } = useSettings();
@@ -88,7 +89,11 @@ export default function Footer() {
                 <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
                 <div>
                   <p className="font-body text-sm text-white/50">Monday — Sunday</p>
-                  <p className="font-body text-sm font-medium text-white/70">11:00 AM — 11:00 PM</p>
+                  <p className="font-body text-sm font-medium text-white/70">
+                    {settings?.opening_time && settings?.closing_time 
+                      ? `${formatTime(settings.opening_time)} — ${formatTime(settings.closing_time)}`
+                      : '11:00 AM — 11:00 PM'}
+                  </p>
                 </div>
               </li>
             </ul>

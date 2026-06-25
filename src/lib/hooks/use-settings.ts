@@ -18,9 +18,10 @@ export function useSettings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const supabase = createClient();
+    
     const fetchSettings = async () => {
       try {
-        const supabase = createClient();
         const { data } = await supabase.from('restaurant_settings').select('*').single();
         if (data) {
           setSettings(data);
@@ -32,6 +33,21 @@ export function useSettings() {
       }
     };
     fetchSettings();
+
+    const channel = supabase
+      .channel('public:restaurant_settings')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'restaurant_settings' },
+        (payload: any) => {
+          setSettings(payload.new);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return { settings, loading };
