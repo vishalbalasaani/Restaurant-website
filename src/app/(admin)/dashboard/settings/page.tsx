@@ -227,47 +227,11 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="settingsOpeningTime" className="mb-1.5 block text-sm font-medium text-text">Opening Time</label>
-            <select 
-              id="settingsOpeningTime" 
-              value={settings.opening_time || '11:00'} 
-              onChange={(e) => handleChange('opening_time', e.target.value)} 
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
-            >
-              {Array.from({ length: 48 }).map((_, i) => {
-                const h = Math.floor(i / 2);
-                const m = i % 2 === 0 ? '00' : '30';
-                const val = `${h.toString().padStart(2, '0')}:${m}`;
-                const ampm = h >= 12 ? 'PM' : 'AM';
-                const displayH = h % 12 || 12;
-                const label = `${displayH.toString().padStart(2, '0')}:${m} ${ampm}`;
-                return <option key={val} value={val}>{label}</option>;
-              })}
-            </select>
+            <input id="settingsOpeningTime" type="time" value={settings.opening_time || '11:00'} onChange={(e) => handleChange('opening_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
           </div>
           <div>
             <label htmlFor="settingsClosingTime" className="mb-1.5 block text-sm font-medium text-text">Closing Time</label>
-            <select 
-              id="settingsClosingTime" 
-              value={settings.closing_time || '23:00'} 
-              onChange={(e) => handleChange('closing_time', e.target.value)} 
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
-            >
-              {Array.from({ length: 48 }).map((_, i) => {
-                const h = Math.floor(i / 2);
-                const m = i % 2 === 0 ? '00' : '30';
-                const val = `${h.toString().padStart(2, '0')}:${m}`;
-                const ampm = h >= 12 ? 'PM' : 'AM';
-                const displayH = h % 12 || 12;
-                
-                // Determine if it's next day
-                const openVal = settings.opening_time || '11:00';
-                const [openH, openM] = openVal.split(':').map(Number);
-                const isNextDay = (h < openH) || (h === openH && parseInt(m) < openM);
-                
-                const label = `${displayH.toString().padStart(2, '0')}:${m} ${ampm}${isNextDay ? ' (Next Day)' : ''}`;
-                return <option key={val} value={val}>{label}</option>;
-              })}
-            </select>
+            <input id="settingsClosingTime" type="time" value={settings.closing_time || '23:00'} onChange={(e) => handleChange('closing_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
           </div>
         </div>
       </motion.div>
