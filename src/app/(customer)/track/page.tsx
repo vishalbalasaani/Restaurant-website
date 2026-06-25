@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle, Phone, Flame, Radar, MapPin } from 'lucide-react';
+import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle, Phone, Flame, Radar, MapPin, Bike } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate, getStatusStep } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
@@ -507,10 +507,10 @@ function TrackOrderContent() {
                           <motion.div
                             initial={{ x: "-100%" }}
                             animate={{ x: "100%" }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                            className="absolute top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white"
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            className="absolute bottom-2 w-8 h-8 flex items-end justify-center text-white"
                           >
-                            <Truck className="h-5 w-5 drop-shadow-md" />
+                            <Bike className="h-6 w-6 drop-shadow-md" />
                           </motion.div>
                         </div>
                       </div>

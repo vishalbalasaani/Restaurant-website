@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Truck, CheckCircle2, Clock, Loader2, Power } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Truck, CheckCircle2, Clock, Loader2, Power, Plus, Upload, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Driver, Order } from '@/lib/types';
 import Image from 'next/image';
@@ -16,6 +16,15 @@ export default function DriversPage() {
   const [driverStats, setDriverStats] = useState<DriverStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  // New Driver Form State
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newMobile, setNewMobile] = useState('');
+  const [newVehicle, setNewVehicle] = useState('');
+  const [newPhoto, setNewPhoto] = useState<File | null>(null);
+  const [newPhotoPreview, setNewPhotoPreview] = useState<string>('');
+  const [savingDriver, setSavingDriver] = useState(false);
 
   const fetchDriversAndStats = async () => {
     try {
@@ -78,6 +87,67 @@ export default function DriversPage() {
     }
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setNewPhoto(file);
+      setNewPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveNewDriver = async () => {
+    if (!newName || !newMobile || !newVehicle || !newPhoto) {
+      alert('Please fill all fields and upload a photo');
+      return;
+    }
+
+    setSavingDriver(true);
+    try {
+      const supabase = createClient();
+      
+      const fileExt = newPhoto.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('driver-images')
+        .upload(filePath, newPhoto);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('driver-images')
+        .getPublicUrl(filePath);
+
+      const { error: insertError } = await supabase
+        .from('drivers')
+        .insert({
+          name: newName,
+          mobile_number: newMobile,
+          vehicle_number: newVehicle,
+          photo_url: publicUrl,
+          availability_status: 'Available',
+          is_active: true
+        });
+
+      if (insertError) throw insertError;
+
+      setNewName('');
+      setNewMobile('');
+      setNewVehicle('');
+      setNewPhoto(null);
+      setNewPhotoPreview('');
+      setShowAddForm(false);
+      
+      await fetchDriversAndStats();
+    } catch (err: any) {
+      console.error(err);
+      alert('Failed to save driver');
+    } finally {
+      setSavingDriver(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-120px)] items-center justify-center">
@@ -87,12 +157,21 @@ export default function DriversPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl p-4 md:p-8">
-      <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold text-primary">Driver Management</h1>
-        <p className="mt-2 text-text-light">
-          Monitor your fleet, track deliveries, and toggle driver availability.
-        </p>
+    <div className="mx-auto max-w-7xl p-4 md:p-8 relative">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-primary">Driver Management</h1>
+          <p className="mt-2 text-text-light">
+            Monitor your fleet, track deliveries, and toggle driver availability.
+          </p>
+        </div>
+        <button 
+          onClick={() => setShowAddForm(true)}
+          className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-primary-light whitespace-nowrap"
+        >
+          <Plus className="h-5 w-5" />
+          Add New Driver
+        </button>
       </div>
 
       {driverStats.length === 0 ? (
@@ -187,6 +266,119 @@ export default function DriversPage() {
           ))}
         </div>
       )}
+
+      {/* Add Driver Modal */}
+      <AnimatePresence>
+        {showAddForm && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+              onClick={() => setShowAddForm(false)} 
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl overflow-hidden rounded-3xl bg-card shadow-2xl border border-border flex flex-col max-h-[90vh]"
+            >
+              <div className="flex items-center justify-between border-b border-border p-6 bg-background/50">
+                <h2 className="font-heading text-xl font-bold text-primary">Add New Driver</h2>
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="rounded-full p-2 text-text-light transition-colors hover:bg-border/50 hover:text-text"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2 block">Driver Name *</label>
+                      <input 
+                        type="text" 
+                        value={newName} 
+                        onChange={e => setNewName(e.target.value)}
+                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2 block">Mobile Number *</label>
+                      <input 
+                        type="text" 
+                        value={newMobile} 
+                        onChange={e => setNewMobile(e.target.value)}
+                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        placeholder="+91 9876543210"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2 block">Vehicle Number *</label>
+                      <input 
+                        type="text" 
+                        value={newVehicle} 
+                        onChange={e => setNewVehicle(e.target.value.toUpperCase())}
+                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        placeholder="TS 09 AB 1234"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2 block">Driver Photo *</label>
+                    <div className="relative flex-1 flex flex-col items-center justify-center min-h-[200px] rounded-xl border-2 border-dashed border-border bg-background hover:bg-border/30 transition-colors group overflow-hidden">
+                      {newPhotoPreview ? (
+                        <>
+                          <Image src={newPhotoPreview} alt="Preview" fill className="object-cover" />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-white font-medium text-sm">Change Photo</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="h-12 w-12 rounded-full bg-accent/20 flex items-center justify-center mb-3">
+                            <Upload className="h-6 w-6 text-accent" />
+                          </div>
+                          <span className="text-sm font-medium text-text-light group-hover:text-primary transition-colors">Click to upload photo</span>
+                        </>
+                      )}
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handlePhotoChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-6 mt-6 border-t border-border">
+                  <button 
+                    onClick={() => setShowAddForm(false)}
+                    disabled={savingDriver}
+                    className="rounded-xl px-6 py-3 font-button text-sm font-bold text-text-light transition-colors hover:bg-border"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleSaveNewDriver}
+                    disabled={savingDriver}
+                    className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-primary-light disabled:opacity-70"
+                  >
+                    {savingDriver ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+                    Save Driver
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
