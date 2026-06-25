@@ -457,17 +457,17 @@ function TrackOrderContent() {
                 <div className="space-y-6">
                   {/* WhatsApp Verification Banner */}
                   {order.status === 'awaiting_payment' && settings?.whatsapp && (
-                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-[#25D366]/30 bg-[#25D366]/5 p-5">
-                      <div className="flex items-start gap-4">
-                        <div className="rounded-full bg-[#25D366]/20 p-2 text-[#25D366]">
-                          <MessageCircle className="h-6 w-6" />
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-[#25D366]/30 bg-[#25D366]/5 p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-full bg-[#25D366]/20 p-1.5 text-[#25D366]">
+                          <MessageCircle className="h-5 w-5" />
                         </div>
                         <div>
-                          <h4 className="font-heading font-bold text-text">Verify your payment</h4>
-                          <p className="mt-1 text-sm text-text-light">
+                          <h4 className="font-heading font-bold text-text text-sm">Verify your payment</h4>
+                          <p className="mt-0.5 text-xs text-text-light">
                             Your order has been accepted! Please send a screenshot of your payment to our WhatsApp to start preparation.
                           </p>
-                          <p className="mt-1 text-sm text-text-light font-medium text-[#25D366]">
+                          <p className="mt-0.5 text-xs text-text-light font-medium text-[#25D366]">
                             Please message {settings.whatsapp}
                           </p>
                         </div>
@@ -477,41 +477,41 @@ function TrackOrderContent() {
 
                   {/* Premium Status Animations */}
                   {order.status === 'preparing' && (
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 p-6 text-white shadow-lg shadow-orange-500/20">
-                      <div className="absolute -right-10 -top-10 opacity-10">
-                        <ChefHat className="h-40 w-40" />
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 to-red-600 p-4 text-white shadow-lg shadow-orange-500/20">
+                      <div className="absolute -right-6 -top-6 opacity-10">
+                        <ChefHat className="h-32 w-32" />
                       </div>
-                      <div className="relative z-10 flex items-center gap-6">
-                        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                      <div className="relative z-10 flex items-center gap-4">
+                        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
                           <motion.div
-                            animate={{ y: [0, -8, 0], rotate: [0, -5, 5, 0] }}
+                            animate={{ y: [0, -4, 0], rotate: [0, -5, 5, 0] }}
                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                           >
-                            <ChefHat className="h-8 w-8 text-white" />
+                            <ChefHat className="h-6 w-6 text-white" />
                           </motion.div>
                           <motion.div
-                            className="absolute -bottom-1 -right-1"
+                            className="absolute -bottom-0.5 -right-0.5"
                             animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
                             transition={{ duration: 1.5, repeat: Infinity }}
                           >
-                            <Flame className="h-5 w-5 text-yellow-300" />
+                            <Flame className="h-4 w-4 text-yellow-300" />
                           </motion.div>
                         </div>
                         <div>
-                          <h4 className="font-heading text-xl font-bold">Cooking in progress</h4>
-                          <p className="text-white/80 font-medium text-sm mt-1">Our chefs are preparing your order with care.</p>
+                          <h4 className="font-heading text-lg font-bold">Cooking in progress</h4>
+                          <p className="text-white/80 font-medium text-xs mt-0.5">Our chefs are preparing your order with care.</p>
                         </div>
                       </div>
                     </motion.div>
                   )}
 
                   {order.status === 'ready' && (
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-6 text-white shadow-lg shadow-blue-500/20">
-                      <div className="absolute -right-10 -top-10 opacity-10">
-                        <Package className="h-40 w-40" />
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-4 text-white shadow-lg shadow-blue-500/20">
+                      <div className="absolute -right-6 -top-6 opacity-10">
+                        <Package className="h-32 w-32" />
                       </div>
-                      <div className="relative z-10 flex items-center gap-6">
-                        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                      <div className="relative z-10 flex items-center gap-4">
+                        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
                           <motion.div
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -522,32 +522,32 @@ function TrackOrderContent() {
                             transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
                             className="absolute inset-0 rounded-full border-2 border-white/30"
                           />
-                          <Radar className="h-8 w-8 text-white relative z-10" />
+                          <Radar className="h-6 w-6 text-white relative z-10" />
                         </div>
                         <div>
-                          <h4 className="font-heading text-xl font-bold">Food is Ready!</h4>
-                          <p className="text-white/80 font-medium text-sm mt-1">Assigning a delivery partner to pick it up.</p>
+                          <h4 className="font-heading text-lg font-bold">Food is Ready!</h4>
+                          <p className="text-white/80 font-medium text-xs mt-0.5">Assigning a delivery partner to pick it up.</p>
                         </div>
                       </div>
                     </motion.div>
                   )}
 
                   {order.status === 'out_for_delivery' && (
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary-light p-6 text-white shadow-lg shadow-primary/20">
-                      <div className="absolute -right-10 -top-10 opacity-10">
-                        <MapPin className="h-40 w-40" />
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-light p-4 text-white shadow-lg shadow-primary/20">
+                      <div className="absolute -right-6 -top-6 opacity-10">
+                        <MapPin className="h-32 w-32" />
                       </div>
-                      <div className="relative z-10 flex flex-col gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                            <Truck className="h-6 w-6 text-white" />
+                      <div className="relative z-10 flex flex-col gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                            <Truck className="h-5 w-5 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-heading text-xl font-bold">On the way</h4>
-                            <p className="text-white/80 font-medium text-sm">Your order is out for delivery.</p>
+                            <h4 className="font-heading text-lg font-bold">On the way</h4>
+                            <p className="text-white/80 font-medium text-xs">Your order is out for delivery.</p>
                           </div>
                         </div>
-                        <div className="relative w-full h-24 mt-6 rounded-xl overflow-hidden bg-slate-800 shadow-inner flex flex-col justify-end border border-white/10">
+                        <div className="relative w-full h-24 mt-2 rounded-xl overflow-hidden bg-slate-800 shadow-inner flex flex-col justify-end border border-white/10">
                           {/* Animated Road */}
                           <div className="w-full h-10 bg-slate-700 relative border-t-2 border-slate-600 flex items-center shrink-0">
                             {/* Moving dashed line */}
