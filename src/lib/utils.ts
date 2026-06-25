@@ -107,6 +107,7 @@ export function getStatusStep(status: string): number {
   return steps[status] ?? -1;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getEffectiveRestaurantStatus(settings: any | null) {
   if (!settings) {
     return {
