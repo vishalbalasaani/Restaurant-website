@@ -45,9 +45,20 @@ export default function SettingsPage() {
     try {
       const supabase = createClient();
       const { id, ...updateData } = settings as RestaurantSettings;
+      
+      // Ensure time values are stored exactly as intended by converting them to an explicit UTC ISO string
+      // This prevents PostgreSQL TIMESTAMPTZ from arbitrarily shifting the time based on its default timezone.
+      const formattedData = { ...updateData };
+      if (formattedData.opening_time && !formattedData.opening_time.includes('T')) {
+        formattedData.opening_time = `2000-01-01T${formattedData.opening_time}:00Z`;
+      }
+      if (formattedData.closing_time && !formattedData.closing_time.includes('T')) {
+        formattedData.closing_time = `2000-01-01T${formattedData.closing_time}:00Z`;
+      }
+
       await supabase
         .from('restaurant_settings')
-        .update({ ...updateData, updated_at: new Date().toISOString() })
+        .update({ ...formattedData, updated_at: new Date().toISOString() })
         .eq('id', id);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
