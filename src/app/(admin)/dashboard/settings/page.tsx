@@ -240,67 +240,24 @@ export default function SettingsPage() {
             <div className="flex gap-2">
               <input 
                 type="date" 
+                disabled
                 value={(() => {
                   if (!settings.opening_time) return '';
                   const d = new Date(settings.opening_time);
                   if (isNaN(d.getTime())) return settings.opening_time.split('T')[0];
                   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                 })()}
-                onChange={(e) => {
-                  const newDate = e.target.value;
-                  if (!newDate) return;
-                  let d = new Date(settings.opening_time || Date.now());
-                  if (isNaN(d.getTime())) d = new Date();
-                  const localH = String(d.getHours()).padStart(2, '0');
-                  const localM = String(d.getMinutes()).padStart(2, '0');
-                  const newD = new Date(`${newDate}T${localH}:${localM}:00`);
-                  handleChange('opening_time', newD.toISOString());
-                }}
-                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
+                className="flex-1 rounded-xl border border-border bg-gray-50 px-4 py-3 text-sm opacity-70 cursor-not-allowed" 
               />
               <select 
-                value={(() => {
-                  if (!settings.opening_time) return '11:00';
-                  const d = new Date(settings.opening_time);
-                  if (isNaN(d.getTime())) return settings.opening_time.split('T')[1]?.substring(0, 5) || '11:00';
-                  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-                })()}
-                onChange={(e) => {
-                  const newTime = e.target.value;
-                  let d = new Date(settings.opening_time || Date.now());
-                  if (isNaN(d.getTime())) d = new Date();
-                  const localY = d.getFullYear();
-                  const localMo = String(d.getMonth() + 1).padStart(2, '0');
-                  const localD = String(d.getDate()).padStart(2, '0');
-                  const newD = new Date(`${localY}-${localMo}-${localD}T${newTime}:00`);
-                  handleChange('opening_time', newD.toISOString());
-                }}
-                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
+                disabled
+                value="11:00"
+                className="flex-1 rounded-xl border border-border bg-gray-50 px-4 py-3 text-sm opacity-70 cursor-not-allowed appearance-none"
               >
-                {TIME_SLOTS.map(({ val, label }) => {
-                  const now = new Date();
-                  const pad = (n: number) => String(n).padStart(2, '0');
-                  const localTodayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-                  
-                  let selectedDateStr = localTodayStr;
-                  if (settings.opening_time) {
-                    const d = new Date(settings.opening_time);
-                    if (!isNaN(d.getTime())) {
-                      selectedDateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-                    }
-                  }
-                  
-                  if (selectedDateStr === localTodayStr) {
-                    const [slotH, slotM] = val.split(':').map(Number);
-                    if (slotH < now.getHours() || (slotH === now.getHours() && slotM <= now.getMinutes())) {
-                      return null;
-                    }
-                  }
-                  
-                  return <option key={val} value={val}>{label}</option>;
-                })}
+                <option value="11:00">11:00 AM</option>
               </select>
             </div>
+            <p className="mt-1 text-xs text-text-light">Opening time is fixed to 11:00 AM daily.</p>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text">Closing Time</label>
@@ -321,7 +278,15 @@ export default function SettingsPage() {
                   const localH = String(d.getHours()).padStart(2, '0');
                   const localM = String(d.getMinutes()).padStart(2, '0');
                   const newD = new Date(`${newDate}T${localH}:${localM}:00`);
-                  handleChange('closing_time', newD.toISOString());
+                  
+                  // Auto-calculate opening time (11:00 AM on the shift's starting day)
+                  const startD = new Date(newD);
+                  if (startD.getHours() < 11) {
+                    startD.setDate(startD.getDate() - 1);
+                  }
+                  startD.setHours(11, 0, 0, 0);
+                  
+                  setSettings(prev => ({ ...prev, closing_time: newD.toISOString(), opening_time: startD.toISOString() }));
                 }}
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
               />
@@ -340,7 +305,15 @@ export default function SettingsPage() {
                   const localMo = String(d.getMonth() + 1).padStart(2, '0');
                   const localD = String(d.getDate()).padStart(2, '0');
                   const newD = new Date(`${localY}-${localMo}-${localD}T${newTime}:00`);
-                  handleChange('closing_time', newD.toISOString());
+                  
+                  // Auto-calculate opening time (11:00 AM on the shift's starting day)
+                  const startD = new Date(newD);
+                  if (startD.getHours() < 11) {
+                    startD.setDate(startD.getDate() - 1);
+                  }
+                  startD.setHours(11, 0, 0, 0);
+                  
+                  setSettings(prev => ({ ...prev, closing_time: newD.toISOString(), opening_time: startD.toISOString() }));
                 }}
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
               >
