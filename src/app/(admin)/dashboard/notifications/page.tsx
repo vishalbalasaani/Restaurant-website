@@ -199,16 +199,47 @@ export default function LiveOrdersPage() {
     }
 
     if (order.status === 'out_for_delivery') {
+      const waMessage = `📦 *New Delivery - Order #${order.order_number}*
+Customer: ${order.customer_name}
+Address: ${order.customer_address}
+
+📍 *Get Customer Location:*
+Driver, click the link below to ask the customer for their live location:
+https://wa.me/${order.customer_phone.replace(/\D/g, '')}?text=Hi!%20I%20am%20your%20delivery%20partner.%20Please%20share%20your%20live%20location.`;
+      
+      const notifyLink = order.driver_mobile_number 
+        ? `https://wa.me/${order.driver_mobile_number.replace(/\D/g, '')}?text=${encodeURIComponent(waMessage)}`
+        : '#';
+
       return (
-        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
-          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
-            <span className="truncate">Mark Delivered</span>
-          </button>
-          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
-            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
-            <span className="truncate">Cancel</span>
-          </button>
+        <div className="flex flex-col bg-background p-4 border-t border-border gap-3">
+          {order.driver_name && (
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <Truck className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-text truncate max-w-[120px]">{order.driver_name}</span>
+              </div>
+              <a 
+                href={notifyLink} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-1.5 text-xs font-bold text-green-600 hover:text-green-700 bg-green-50 px-2.5 py-1.5 rounded-lg border border-green-200 transition-colors"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                Notify Driver
+              </a>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-70">
+              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
+              <span className="truncate">Delivered</span>
+            </button>
+            <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
+              {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
+              <span className="truncate">Cancel</span>
+            </button>
+          </div>
         </div>
       );
     }
