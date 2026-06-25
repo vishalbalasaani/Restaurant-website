@@ -194,8 +194,7 @@ export default function SettingsPage() {
               value={(() => {
                 if (!settings.opening_time) return '11:00';
                 if (settings.opening_time.includes('T')) {
-                  const d = new Date(settings.opening_time);
-                  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                  return settings.opening_time.split('T')[1].slice(0, 5);
                 }
                 return settings.opening_time.slice(0, 5);
               })()} 
@@ -211,8 +210,7 @@ export default function SettingsPage() {
               value={(() => {
                 if (!settings.closing_time) return '23:00';
                 if (settings.closing_time.includes('T')) {
-                  const d = new Date(settings.closing_time);
-                  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                  return settings.closing_time.split('T')[1].slice(0, 5);
                 }
                 return settings.closing_time.slice(0, 5);
               })()} 

@@ -181,14 +181,15 @@ export function formatDate(dateString: string): string {
 
 export function formatTime(timeString: string): string {
   if (!timeString) return '';
-  let date: Date;
+  let hoursStr, minutesStr;
   if (timeString.includes('T')) {
-    date = new Date(timeString);
+    const timePart = timeString.split('T')[1].slice(0, 5);
+    [hoursStr, minutesStr] = timePart.split(':');
   } else {
-    const [hours, minutes] = timeString.split(':');
-    date = new Date();
-    date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+    [hoursStr, minutesStr] = timeString.split(':');
   }
+  const date = new Date();
+  date.setHours(parseInt(hoursStr, 10), parseInt(minutesStr, 10));
   return new Intl.DateTimeFormat('en-IN', {
     hour: 'numeric',
     minute: '2-digit',
