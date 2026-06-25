@@ -35,12 +35,14 @@ export function useSettings() {
     fetchSettings();
 
     const channel = supabase
-      .channel('public:restaurant_settings')
+      .channel(`settings_update_${Math.random()}`)
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'restaurant_settings' },
         (payload: any) => {
-          setSettings(payload.new);
+          if (payload.new) {
+            setSettings(payload.new);
+          }
         }
       )
       .subscribe();
