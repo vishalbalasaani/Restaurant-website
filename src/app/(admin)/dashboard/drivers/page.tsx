@@ -206,16 +206,16 @@ export default function DriversPage() {
               key={driver.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`grid grid-cols-1 lg:grid-cols-12 gap-6 items-center overflow-hidden rounded-2xl border ${driver.is_active ? 'border-border' : 'border-border/50 opacity-75'} bg-card p-5 shadow-sm hover:shadow-md transition-all`}
+              className={`grid grid-cols-1 lg:grid-cols-12 gap-4 items-center overflow-hidden rounded-xl border ${driver.is_active ? 'border-border' : 'border-border/50 opacity-75'} bg-card p-4 shadow-sm hover:shadow-md transition-all`}
             >
               {/* Driver Info */}
-              <div className="lg:col-span-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className={`relative h-16 w-16 shrink-0 rounded-full overflow-hidden border-2 shadow-sm ${driver.is_active ? 'border-border' : 'border-border/50 grayscale'}`}>
+              <div className="lg:col-span-5 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className={`relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-full overflow-hidden border-2 shadow-sm ${driver.is_active ? 'border-border' : 'border-border/50 grayscale'}`}>
                   <Image src={driver.photo_url} alt={driver.name} fill className="object-cover" />
                 </div>
                 <div className="flex flex-col min-w-0 w-full">
-                  <div className="flex flex-wrap items-center gap-2 mb-1.5 w-full">
-                    <h3 className="font-heading text-lg font-bold text-text truncate max-w-[200px]">{driver.name}</h3>
+                  <div className="flex flex-wrap items-center gap-2 mb-1 w-full">
+                    <h3 className="font-heading text-base font-bold text-text truncate max-w-[200px]">{driver.name}</h3>
                     {!driver.is_active ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200 shrink-0">
                         Offline
@@ -236,13 +236,13 @@ export default function DriversPage() {
                       );
                     })()}
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-text-light w-full mt-0.5">
-                    <span className="whitespace-nowrap flex items-center gap-1.5">
-                      <Phone className="h-3.5 w-3.5 text-text-muted" />
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-text-light w-full">
+                    <span className="whitespace-nowrap flex items-center gap-1">
+                      <Phone className="h-3 w-3 text-text-muted" />
                       {driver.mobile_number}
                     </span>
-                    <span className="hidden sm:inline h-1.5 w-1.5 rounded-full bg-border shrink-0"></span>
-                    <span className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-bold border whitespace-nowrap shrink-0 ${driver.is_active ? 'bg-accent/10 text-accent border-accent/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
+                    <span className="hidden sm:inline h-1 w-1 rounded-full bg-border shrink-0"></span>
+                    <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold border whitespace-nowrap shrink-0 ${driver.is_active ? 'bg-accent/10 text-accent border-accent/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
                       {driver.vehicle_number}
                     </span>
                   </div>
@@ -250,70 +250,70 @@ export default function DriversPage() {
               </div>
               
               {/* Stats */}
-              <div className="lg:col-span-3 flex items-center justify-around border-y lg:border-y-0 lg:border-x border-border py-4 lg:py-0 h-full">
+              <div className="lg:col-span-3 flex items-center justify-around border-y lg:border-y-0 lg:border-x border-border py-3 lg:py-0 h-full">
                 <div className="flex flex-col items-center justify-center flex-1 min-w-0">
-                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> Total
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted mb-0.5 flex items-center justify-center gap-1 whitespace-nowrap">
+                    <CheckCircle2 className="h-3 w-3 shrink-0" /> Total
                   </span>
-                  <span className="font-heading text-xl sm:text-2xl font-bold text-text">{driver.delivered_orders}</span>
+                  <span className="font-heading text-lg sm:text-xl font-bold text-text">{driver.delivered_orders}</span>
                 </div>
-                <div className="h-10 w-px bg-border shrink-0"></div>
+                <div className="h-8 w-px bg-border shrink-0"></div>
                 <div className="flex flex-col items-center justify-center flex-1 min-w-0">
-                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <Clock className="h-3.5 w-3.5 shrink-0" /> On The Way
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted mb-0.5 flex items-center justify-center gap-1 whitespace-nowrap">
+                    <Clock className="h-3 w-3 shrink-0" /> On The Way
                   </span>
-                  <span className={`font-heading text-xl sm:text-2xl font-bold ${driver.active_orders > 0 ? 'text-accent' : 'text-text'}`}>{driver.active_orders}</span>
+                  <span className={`font-heading text-lg sm:text-xl font-bold ${driver.active_orders > 0 ? 'text-accent' : 'text-text'}`}>{driver.active_orders}</span>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="lg:col-span-4 flex flex-wrap items-center justify-start lg:justify-end gap-3 w-full">
-                <div className="flex items-center gap-3 w-full sm:w-auto bg-accent/5 px-4 py-2.5 rounded-xl border border-accent/10">
-                  <span className={`text-xs font-bold uppercase tracking-wider ${driver.is_active ? 'text-green-600' : 'text-text-muted'}`}>
+              <div className="lg:col-span-4 flex flex-wrap items-center justify-start lg:justify-end gap-2 w-full">
+                <div className="flex items-center gap-2 w-full sm:w-auto bg-accent/5 px-3 py-1.5 rounded-lg border border-accent/10">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${driver.is_active ? 'text-green-600' : 'text-text-muted'}`}>
                     {driver.is_active ? 'Online' : 'Offline'}
                   </span>
                   <button
                     onClick={() => toggleDriverStatus(driver.id, driver.is_active)}
                     disabled={togglingId === driver.id}
-                    className="relative inline-flex h-7 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none disabled:opacity-50 shadow-sm hover:shadow-md"
+                    className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none disabled:opacity-50 shadow-sm hover:shadow-md"
                   >
                     <span className={`absolute inset-0 h-full w-full rounded-full transition-all duration-300 ease-in-out ${driver.is_active ? 'bg-gradient-to-r from-emerald-400 to-green-500 shadow-inner shadow-green-700/20' : 'bg-slate-200 shadow-inner shadow-slate-300/50'}`} />
                     <span
-                      className={`absolute flex h-6 w-6 transform items-center justify-center rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${
-                        driver.is_active ? 'translate-x-3.5' : '-translate-x-3.5'
+                      className={`absolute flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out ${
+                        driver.is_active ? 'translate-x-2.5' : '-translate-x-2.5'
                       }`}
                     >
                       {togglingId === driver.id ? (
                         <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
                       ) : driver.is_active ? (
-                        <Power className="h-3 w-3 text-green-500" />
+                        <Power className="h-2.5 w-2.5 text-green-500" />
                       ) : (
-                        <Power className="h-3 w-3 text-slate-300" />
+                        <Power className="h-2.5 w-2.5 text-slate-300" />
                       )}
                     </span>
                   </button>
                 </div>
                 
-                <div className="flex flex-1 sm:flex-none justify-end gap-3">
+                <div className="flex flex-1 sm:flex-none justify-end gap-2">
                   {driver.availability_status === 'Assigned' && driver.active_orders === 0 && driver.is_active && (
                     <button
                       onClick={() => markDriverArrived(driver.id)}
                       disabled={togglingId === driver.id}
-                      className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200"
+                      className="flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200"
                     >
                       {togglingId === driver.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <MapPin className="h-4 w-4" />
+                        <MapPin className="h-3.5 w-3.5" />
                       )}
-                      Mark Arrived
+                      Arrived
                     </button>
                   )}
                   <button
                     onClick={() => setViewingDriver({ id: driver.id, name: driver.name })}
-                    className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                    className="flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
                   >
-                    <Package className="h-4 w-4" />
+                    <Package className="h-3.5 w-3.5" />
                     History
                   </button>
                 </div>
