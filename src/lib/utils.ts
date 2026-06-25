@@ -107,44 +107,93 @@ export function getStatusStep(status: string): number {
   return steps[status] ?? -1;
 }
 
-export function getEffectiveRestaurantStatus(settings: any) {
-  if (!settings) {
-    return {
-      isOpen: false,
-      isKitchenOpen: false,
-      isReservationsOpen: false,
-      isEffectivelyOpen: false,
-      isTemporarilyClosed: false,
-      isReservationsTemporarilyClosed: false,
-      isClosingSoon: false,
-      isOpeningSoon: false,
-      closingTimeObj: null,
-      openingTimeObj: null,
-      closingTime: null,
-      openingTime: null,
-    };
-  }
+export function getEffectiveRestaurantStatus(settings: any | null) {
+  const fallbackObj = { 
+    isOpen: false, 
+    isKitchenOpen: false,
+    isReservationsOpen: false,
+    isEffectivelyOpen: false,
+    isTemporarilyClosed: false,
+    isReservationsTemporarilyClosed: false,
+    isClosingSoon: false, 
+    closingTime: null, 
+    isOpeningSoon: false, 
+    openingTime: null,
+    closingTimeObj: null,
+    openingTimeObj: null
+  };
+
+  if (!settings) return fallbackObj;
 
   const now = new Date();
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
   
-  // Safely parse timestamps, default to closed if invalid
-  const openDate = settings.opening_time ? new Date(settings.opening_time) : new Date(0);
-  const closeDate = settings.closing_time ? new Date(settings.closing_time) : new Date(0);
+  const getLocalTimeString = (val: string, fallback: string) => {
+    if (!val) return fallback;
+    if (val.includes('T')) {
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) {
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+    }
+    return val.substring(0, 5);
+  };
+
+  const [openHourStr, openMinStr] = getLocalTimeString(settings.opening_time, '11:00').split(':');
+  const [closeHourStr, closeMinStr] = getLocalTimeString(settings.closing_time, '23:00').split(':');
   
+  const openHour = parseInt(openHourStr, 10);
+  const openMin = parseInt(openMinStr, 10);
+  const closeHour = parseInt(closeHourStr, 10);
+  const closeMin = parseInt(closeMinStr, 10);
+  
+  const currentTotalMinutes = currentHours * 60 + currentMinutes;
+  const openTotalMinutes = openHour * 60 + openMin;
+  const closeTotalMinutes = closeHour * 60 + closeMin;
+  
+  // Are we inside standard physical operating hours?
+  let isWithinPhysicalHours = false;
+  if (closeTotalMinutes < openTotalMinutes) {
+    isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes || currentTotalMinutes < closeTotalMinutes;
+  } else {
+    isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes && currentTotalMinutes < closeTotalMinutes;
+  }
+  
+  // Calculate the most recent boundary (open or close) that has passed
+  let mostRecentBoundary = new Date(0);
+  const boundaries: Date[] = [];
+  for (let offset = -2; offset <= 1; offset++) {
+     const o = new Date();
+     o.setDate(o.getDate() + offset);
+     o.setHours(openHour, openMin, 0, 0);
+     boundaries.push(o);
+
+     const c = new Date();
+     c.setDate(c.getDate() + offset);
+     c.setHours(closeHour, closeMin, 0, 0);
+     boundaries.push(c);
+  }
+
+  for (const b of boundaries) {
+     if (b <= now && b > mostRecentBoundary) {
+        mostRecentBoundary = b;
+     }
+  }
+
   const lastUpdatedAt = new Date(settings.updated_at || new Date(0));
-
-  // Determine if we are within the physical shift
-  const isWithinPhysicalHours = now >= openDate && now < closeDate;
-
+  
   let isKitchenOpen = isWithinPhysicalHours;
   let isReservationsOpen = isWithinPhysicalHours;
 
-  // Manual Override Logic:
-  // If the user manually toggled the button AFTER the current shift started
-  if (lastUpdatedAt > openDate) {
-    isKitchenOpen = settings.kitchen_open;
-    isReservationsOpen = settings.reservations_open;
+  if (lastUpdatedAt >= mostRecentBoundary) {
+      // User manually toggled after the last scheduled automation event
+      isKitchenOpen = settings.kitchen_open;
+      isReservationsOpen = settings.reservations_open;
   }
+
+  let isEffectivelyOpen = isKitchenOpen; // keep for backward compatibility with other files
 
   let isClosingSoon = false;
   let closingTimeObj = null;
@@ -152,19 +201,36 @@ export function getEffectiveRestaurantStatus(settings: any) {
   let openingTimeObj = null;
 
   if (isWithinPhysicalHours) {
-    const diffMinutes = (closeDate.getTime() - now.getTime()) / (1000 * 60);
+    let diffMinutes = 0;
+    if (closeTotalMinutes < openTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
+       diffMinutes = (24 * 60 - currentTotalMinutes) + closeTotalMinutes;
+    } else {
+       diffMinutes = closeTotalMinutes - currentTotalMinutes;
+    }
+    
     if (diffMinutes <= 60 && diffMinutes > 0) {
       isClosingSoon = true;
-      closingTimeObj = closeDate;
+      closingTimeObj = new Date();
+      if (closeTotalMinutes < openTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
+          closingTimeObj.setDate(closingTimeObj.getDate() + 1);
+      }
+      closingTimeObj.setHours(closeHour, closeMin, 0, 0);
     }
   } else {
-    // If we are closed, check if we are opening soon (within the next 60 mins)
-    if (openDate > now) {
-      const diffMinutesToOpen = (openDate.getTime() - now.getTime()) / (1000 * 60);
-      if (diffMinutesToOpen <= 60 && diffMinutesToOpen > 0) {
-        isOpeningSoon = true;
-        openingTimeObj = openDate;
+    let diffMinutes = 0;
+    if (openTotalMinutes < currentTotalMinutes) {
+       diffMinutes = (24 * 60 - currentTotalMinutes) + openTotalMinutes;
+    } else {
+       diffMinutes = openTotalMinutes - currentTotalMinutes;
+    }
+    
+    if (diffMinutes <= 60 && diffMinutes > 0) {
+      isOpeningSoon = true;
+      openingTimeObj = new Date();
+      if (openTotalMinutes < currentTotalMinutes) {
+          openingTimeObj.setDate(openingTimeObj.getDate() + 1);
       }
+      openingTimeObj.setHours(openHour, openMin, 0, 0);
     }
   }
 
@@ -172,7 +238,7 @@ export function getEffectiveRestaurantStatus(settings: any) {
   const isReservationsTemporarilyClosed = isWithinPhysicalHours && !isReservationsOpen;
 
   return {
-    isOpen: isKitchenOpen,
+    isOpen: isWithinPhysicalHours,
     isKitchenOpen,
     isReservationsOpen,
     isEffectivelyOpen: isKitchenOpen,
@@ -182,8 +248,8 @@ export function getEffectiveRestaurantStatus(settings: any) {
     isOpeningSoon,
     closingTimeObj,
     openingTimeObj,
-    closingTime: closingTimeObj,
-    openingTime: openingTimeObj,
+    closingTime: settings.closing_time,
+    openingTime: settings.opening_time,
   };
 }
 
