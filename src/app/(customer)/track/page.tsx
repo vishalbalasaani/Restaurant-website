@@ -497,20 +497,23 @@ function TrackOrderContent() {
                             <p className="text-white/80 font-medium text-sm">Your order is out for delivery.</p>
                           </div>
                         </div>
-                        <div className="relative h-2 w-full rounded-full bg-white/20 mt-2">
-                          <motion.div
-                            initial={{ width: "0%" }}
-                            animate={{ width: "100%" }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                            className="absolute left-0 top-0 h-full rounded-full bg-white"
+                        <div className="relative w-full h-10 mt-6 rounded-lg overflow-hidden bg-slate-800 shadow-inner border-y-4 border-slate-900 flex items-center">
+                          {/* Animated Dashed Road Lines to create movement effect */}
+                          <motion.div 
+                            initial={{ x: 0 }}
+                            animate={{ x: "-32px" }}
+                            transition={{ duration: 0.5, repeat: Infinity, ease: "linear" }}
+                            className="absolute left-0 right-[-32px] w-[calc(100%+32px)] h-[2px] border-t-[3px] border-dashed border-white/40" 
                           />
+                          
+                          {/* The Bike moving forward */}
                           <motion.div
-                            initial={{ x: "-100%" }}
-                            animate={{ x: "100%" }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                            className="absolute bottom-2 w-8 h-8 flex items-end justify-center text-white"
+                            initial={{ left: "-20%" }}
+                            animate={{ left: "120%" }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                            className="absolute top-1/2 -translate-y-[70%] text-white z-10 drop-shadow-xl"
                           >
-                            <Bike className="h-6 w-6 drop-shadow-md" />
+                            <Bike className="h-7 w-7" />
                           </motion.div>
                         </div>
                       </div>

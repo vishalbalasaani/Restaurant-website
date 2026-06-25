@@ -128,7 +128,6 @@ export function DriverAssignmentModal({ order, onClose, onAssigned }: DriverModa
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div className="relative flex-1 w-full">
@@ -152,13 +151,8 @@ export function DriverAssignmentModal({ order, onClose, onAssigned }: DriverModa
                   <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-border rounded-2xl bg-background/50">
                     <Truck className="h-12 w-12 text-border mb-4" />
                     <p className="font-heading font-bold text-text mb-1">No drivers available</p>
-                    <p className="text-sm text-text-light mb-6">There are no drivers matching your criteria.</p>
-                    <button 
-                      onClick={() => setShowAddForm(true)}
-                      className="rounded-xl bg-primary px-6 py-2.5 font-button text-sm font-bold text-white hover:bg-primary-light transition-colors"
-                    >
-                      Add First Driver
-                    </button>
+                    <p className="text-sm text-text-light mb-2">There are no drivers matching your criteria.</p>
+                    <p className="text-xs text-text-muted">You can add new drivers from the Drivers page.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -188,7 +182,7 @@ export function DriverAssignmentModal({ order, onClose, onAssigned }: DriverModa
                     ))}
                   </div>
                 )}
-              </div>
+            </div>
           </div>
         </motion.div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Truck, CheckCircle2, Clock, Loader2, Power, Plus, Upload, X } from 'lucide-react';
+import { Truck, CheckCircle2, Clock, Loader2, Power, Plus, Upload, X, MapPin } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Driver, Order } from '@/lib/types';
 import Image from 'next/image';
@@ -82,6 +82,18 @@ export default function DriversPage() {
       // Local state update is handled by the realtime subscription
     } catch (error) {
       console.error('Error toggling driver status:', error);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const markDriverArrived = async (driverId: string) => {
+    setTogglingId(driverId);
+    try {
+      const supabase = createClient();
+      await supabase.from('drivers').update({ availability_status: 'Available' }).eq('id', driverId);
+    } catch (error) {
+      console.error('Error marking driver arrived:', error);
     } finally {
       setTogglingId(null);
     }
@@ -209,9 +221,11 @@ export default function DriversPage() {
                       <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                         driver.availability_status === 'Available' 
                           ? 'bg-green-100 text-green-700 border border-green-200' 
+                          : driver.availability_status === 'Returning'
+                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
                           : 'bg-blue-100 text-blue-700 border border-blue-200'
                       }`}>
-                        {driver.availability_status === 'Available' ? <CheckCircle2 className="h-3 w-3" /> : <Truck className="h-3 w-3" />}
+                        {driver.availability_status === 'Available' ? <CheckCircle2 className="h-3 w-3" /> : driver.availability_status === 'Returning' ? <MapPin className="h-3 w-3" /> : <Truck className="h-3 w-3" />}
                         {driver.availability_status}
                       </span>
                     )}
@@ -244,11 +258,25 @@ export default function DriversPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end w-full md:w-auto shrink-0 pl-2">
+              <div className="flex flex-col md:flex-row items-center justify-end w-full md:w-auto shrink-0 gap-2 pl-2">
+                {driver.availability_status === 'Returning' && driver.is_active && (
+                  <button
+                    onClick={() => markDriverArrived(driver.id)}
+                    disabled={togglingId === driver.id}
+                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 w-full md:w-auto"
+                  >
+                    {togglingId === driver.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <MapPin className="h-4 w-4" />
+                    )}
+                    Mark Arrived
+                  </button>
+                )}
                 <button
                   onClick={() => toggleDriverStatus(driver.id, driver.is_active)}
                   disabled={togglingId === driver.id}
-                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors w-full md:w-auto ${
                     driver.is_active 
                       ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' 
                       : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'

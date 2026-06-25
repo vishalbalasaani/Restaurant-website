@@ -51,7 +51,7 @@ export default function LiveOrdersPage() {
     
     // If order is delivered and has a driver, release the driver
     if (newStatus === 'delivered' && driverId) {
-      await supabase.from('drivers').update({ availability_status: 'Available' }).eq('id', driverId);
+      await supabase.from('drivers').update({ availability_status: 'Returning' }).eq('id', driverId);
     }
     
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
