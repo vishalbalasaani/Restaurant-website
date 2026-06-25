@@ -11,6 +11,7 @@ export default function CountdownBanner() {
   const [countdownStr, setCountdownStr] = useState<string | null>(null);
   const [openingStr, setOpeningStr] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(true);
+  const [isTemporarilyClosed, setIsTemporarilyClosed] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -38,6 +39,7 @@ export default function CountdownBanner() {
     const updateCountdown = () => {
       const status = getEffectiveRestaurantStatus(settings);
       setIsOpen(status.isOpen);
+      setIsTemporarilyClosed(status.isTemporarilyClosed);
 
       if (status.isClosingSoon && status.closingTime) {
         const now = new Date();
@@ -92,10 +94,20 @@ export default function CountdownBanner() {
   }
   
   if (settings && !isOpen) {
+    // Format the time directly to avoid importing extra functions
+    const openTime = settings.opening_time || '11:00';
+    const [hStr, mStr] = openTime.split(':');
+    let h = parseInt(hStr, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const formattedOpenTime = `${h}:${mStr} ${ampm}`;
+
     return (
       <div className="bg-red-600/90 backdrop-blur-md w-full text-white px-4 py-2 text-center text-sm font-bold flex items-center justify-center gap-2 border-b border-red-500/50">
         <Clock className="w-4 h-4" />
-        Restaurant is now closed. We open tomorrow at 11:00 AM.
+        {isTemporarilyClosed
+          ? "We are temporarily not accepting orders right now."
+          : `Restaurant is now closed. We open tomorrow at ${formattedOpenTime}.`}
       </div>
     );
   }

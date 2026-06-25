@@ -108,7 +108,17 @@ export function getStatusStep(status: string): number {
 }
 
 export function getEffectiveRestaurantStatus(settings: any | null) {
-  if (!settings) return { isOpen: false, isClosingSoon: false, closingTime: null, isOpeningSoon: false, openingTime: null };
+  if (!settings) return { 
+    isOpen: false, 
+    isKitchenOpen: false,
+    isReservationsOpen: false,
+    isTemporarilyClosed: false,
+    isReservationsTemporarilyClosed: false,
+    isClosingSoon: false, 
+    closingTime: null, 
+    isOpeningSoon: false, 
+    openingTime: null 
+  };
 
   const now = new Date();
   const currentHours = now.getHours();
@@ -173,7 +183,7 @@ export function getEffectiveRestaurantStatus(settings: any | null) {
   let isOpeningSoon = false;
   let openingTimeObj = null;
 
-  if (isEffectivelyOpen) {
+  if (isWithinPhysicalHours) {
     let diffMinutes = 0;
     if (closeTotalMinutes < openTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
        diffMinutes = (24 * 60 - currentTotalMinutes) + closeTotalMinutes;
@@ -192,10 +202,8 @@ export function getEffectiveRestaurantStatus(settings: any | null) {
   } else {
      let diffMinutesToOpen = 0;
      if (currentTotalMinutes >= closeTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
-        // We are past close time, open is tomorrow
         diffMinutesToOpen = (24 * 60 - currentTotalMinutes) + openTotalMinutes;
      } else if (currentTotalMinutes < openTotalMinutes) {
-        // We are before open time today
         diffMinutesToOpen = openTotalMinutes - currentTotalMinutes;
      }
      
@@ -209,10 +217,15 @@ export function getEffectiveRestaurantStatus(settings: any | null) {
      }
   }
 
+  const isTemporarilyClosed = isWithinPhysicalHours && !isKitchenOpen;
+  const isReservationsTemporarilyClosed = isWithinPhysicalHours && !isReservationsOpen;
+
   return { 
     isOpen: isEffectivelyOpen, 
     isKitchenOpen,
     isReservationsOpen,
+    isTemporarilyClosed,
+    isReservationsTemporarilyClosed,
     isClosingSoon, 
     closingTime: closingTimeObj, 
     isOpeningSoon, 

@@ -191,16 +191,20 @@ export default function CartPage() {
     );
   }
 
-  const { isOpen } = getEffectiveRestaurantStatus(globalSettings as any);
+  const { isOpen, isTemporarilyClosed } = getEffectiveRestaurantStatus(globalSettings as any);
   if (globalSettings && !isOpen) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center p-4 text-center">
         <div className="mb-4 rounded-full bg-red-100 p-4">
           <XCircle className="h-10 w-10 text-red-600" />
         </div>
-        <h2 className="font-heading text-2xl font-bold text-text mb-2">Kitchen Closed</h2>
+        <h2 className="font-heading text-2xl font-bold text-text mb-2">
+          {isTemporarilyClosed ? 'Temporarily Closed' : 'Kitchen Closed'}
+        </h2>
         <p className="text-text-light max-w-md mb-6">
-          Our kitchen is currently closed. We are not accepting new orders at this time.
+          {isTemporarilyClosed
+            ? 'We are temporarily not accepting orders right now. Please check back later.'
+            : 'Our kitchen is currently closed. We are not accepting new orders at this time.'}
         </p>
         <Link href="/menu" className="rounded-xl bg-primary px-6 py-3 font-bold text-white transition-colors hover:bg-primary-light">
           Browse Menu Anyway

@@ -273,16 +273,20 @@ export default function ReserveTablePage() {
     setStep(3);
   };
 
-  const { isOpen } = getEffectiveRestaurantStatus(globalSettings as any);
-  if (!isOpen) {
+  const { isReservationsOpen, isReservationsTemporarilyClosed } = getEffectiveRestaurantStatus(globalSettings as any);
+  if (!isReservationsOpen) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center p-4 text-center">
         <div className="mb-4 rounded-full bg-red-100 p-4">
           <XCircle className="h-10 w-10 text-red-600" />
         </div>
-        <h2 className="font-heading text-2xl font-bold text-text mb-2">Reservations Closed</h2>
-        <p className="text-text-light max-w-md">
-          We are currently not accepting new table reservations. Please check back later!
+        <h2 className="font-heading text-2xl font-bold text-text mb-2">
+          {isReservationsTemporarilyClosed ? 'Reservations Temporarily Paused' : 'Reservations Closed'}
+        </h2>
+        <p className="text-text-light max-w-md mb-6">
+          {isReservationsTemporarilyClosed
+            ? 'We are temporarily not accepting table reservations right now. Please check back later.'
+            : 'We are currently not accepting table reservations at this time.'}
         </p>
       </div>
     );
