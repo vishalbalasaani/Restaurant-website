@@ -110,6 +110,7 @@ export function getStatusStep(status: string): number {
 export function getEffectiveRestaurantStatus(settings: any) {
   if (!settings) {
     return {
+      isOpen: false,
       isKitchenOpen: false,
       isReservationsOpen: false,
       isEffectivelyOpen: false,
@@ -119,6 +120,8 @@ export function getEffectiveRestaurantStatus(settings: any) {
       isOpeningSoon: false,
       closingTimeObj: null,
       openingTimeObj: null,
+      closingTime: null,
+      openingTime: null,
     };
   }
 
