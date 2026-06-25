@@ -251,16 +251,16 @@ export default function DriversPage() {
               
               {/* Stats */}
               <div className="lg:col-span-3 flex items-center justify-around border-y lg:border-y-0 lg:border-x border-border py-4 lg:py-0 h-full">
-                <div className="flex flex-col items-center justify-center flex-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> Total
+                <div className="flex flex-col items-center justify-center flex-1 min-w-0">
+                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> Total
                   </span>
                   <span className="font-heading text-xl sm:text-2xl font-bold text-text">{driver.delivered_orders}</span>
                 </div>
-                <div className="h-10 w-px bg-border"></div>
-                <div className="flex flex-col items-center justify-center flex-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" /> On The Way
+                <div className="h-10 w-px bg-border shrink-0"></div>
+                <div className="flex flex-col items-center justify-center flex-1 min-w-0">
+                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <Clock className="h-3.5 w-3.5 shrink-0" /> On The Way
                   </span>
                   <span className={`font-heading text-xl sm:text-2xl font-bold ${driver.active_orders > 0 ? 'text-accent' : 'text-text'}`}>{driver.active_orders}</span>
                 </div>
