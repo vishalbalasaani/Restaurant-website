@@ -22,40 +22,54 @@ const STATUS_STEPS = [
 ];
 
 const DeliveryScootyAnimation = () => (
-  <svg viewBox="0 0 120 100" className="w-24 h-20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Motion blur/wind */}
-    <motion.path d="M0 60 L-15 60 M5 50 L-10 50" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" animate={{ x: [-10, 5, -10], opacity: [0, 1, 0] }} transition={{ duration: 0.4, repeat: Infinity }} />
+  <svg viewBox="0 0 240 140" className="w-48 h-28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Wind/Speed lines */}
+    <motion.path d="M 30 110 L 0 110 M 40 80 L 10 80 M 35 125 L 15 125" stroke="rgba(255,255,255,0.6)" strokeWidth="3" strokeLinecap="round" animate={{ x: [-20, 10, -20], opacity: [0, 1, 0] }} transition={{ duration: 0.6, repeat: Infinity }} />
     
-    {/* Delivery Bag */}
-    <rect x="15" y="25" width="25" height="35" rx="3" fill="#F97316" stroke="#EA580C" strokeWidth="2" />
-    <path d="M15 35 L40 35" stroke="#EA580C" strokeWidth="2" />
-    <path d="M27.5 25 L27.5 60" stroke="#EA580C" strokeWidth="2" />
+    {/* Delivery Box (Back) */}
+    <rect x="40" y="40" width="50" height="60" rx="8" fill="#ffffff" />
+    <path d="M 40 60 L 90 60 M 65 40 L 65 100" stroke="#e2e8f0" strokeWidth="2" />
+    {/* Logo on box */}
+    <circle cx="65" cy="70" r="10" fill="#f97316" />
     
-    {/* Body */}
-    <path d="M25 60 L95 60 C105 60 105 75 95 75 L15 75 C5 75 5 60 25 60 Z" fill="#3B82F6" />
-    <path d="M75 35 L95 60 L65 60 Z" fill="#2563EB" />
-    <path d="M60 25 L80 25 C85 25 90 35 80 35 L60 35 Z" fill="#1E3A8A" />
+    {/* Scooter Frame */}
+    <path d="M 50 100 L 170 100 C 185 100 190 115 180 125 L 50 125 C 35 125 35 100 50 100 Z" fill="#ffffff" />
+    <path d="M 140 60 L 175 110 L 135 110 Z" fill="#f8fafc" />
+    {/* Dashboard / Handle bar area */}
+    <path d="M 120 55 L 155 55 C 160 55 165 60 160 65 L 120 65 Z" fill="#cbd5e1" />
     
     {/* Wheels */}
     <g>
-      <circle cx="30" cy="75" r="14" fill="#1F2937" stroke="#4B5563" strokeWidth="3" />
-      <motion.circle cx="30" cy="75" r="6" fill="#D1D5DB" stroke="#9CA3AF" strokeWidth="1" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "30px 75px" }} />
-      <motion.path d="M30 69 L30 81 M24 75 L36 75" stroke="#4B5563" strokeWidth="2" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "30px 75px" }} />
+      <circle cx="70" cy="125" r="18" fill="#0f172a" />
+      <circle cx="70" cy="125" r="8" fill="#e2e8f0" />
+      <motion.g animate={{ rotate: 360 }} transition={{ duration: 0.5, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "70px 125px" }}>
+        <path d="M 70 107 L 70 143 M 52 125 L 88 125 M 57 112 L 83 138 M 57 138 L 83 112" stroke="#334155" strokeWidth="2" />
+      </motion.g>
     </g>
     <g>
-      <circle cx="85" cy="75" r="14" fill="#1F2937" stroke="#4B5563" strokeWidth="3" />
-      <motion.circle cx="85" cy="75" r="6" fill="#D1D5DB" stroke="#9CA3AF" strokeWidth="1" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "85px 75px" }} />
-      <motion.path d="M85 69 L85 81 M79 75 L91 75" stroke="#4B5563" strokeWidth="2" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "85px 75px" }} />
+      <circle cx="160" cy="125" r="18" fill="#0f172a" />
+      <circle cx="160" cy="125" r="8" fill="#e2e8f0" />
+      <motion.g animate={{ rotate: 360 }} transition={{ duration: 0.5, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "160px 125px" }}>
+        <path d="M 160 107 L 160 143 M 142 125 L 178 125 M 147 112 L 173 138 M 147 138 L 173 112" stroke="#334155" strokeWidth="2" />
+      </motion.g>
     </g>
 
     {/* Headlight */}
-    <circle cx="100" cy="65" r="4" fill="#FEF08A" />
-    <motion.path d="M102 65 L120 55 L120 75 Z" fill="#FEF08A" opacity="0.5" animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 0.5, repeat: Infinity }} />
+    <circle cx="180" cy="110" r="6" fill="#fef08a" />
+    <motion.path d="M 185 110 L 235 85 L 235 135 Z" fill="#fef08a" opacity="0.3" animate={{ opacity: [0.15, 0.4, 0.15] }} transition={{ duration: 1, repeat: Infinity }} />
 
-    {/* Partner */}
-    <circle cx="65" cy="18" r="12" fill="#EF4444" stroke="#B91C1C" strokeWidth="2" />
-    <rect x="67" y="14" width="8" height="8" rx="2" fill="#111827" />
-    <path d="M58 30 Q65 25 75 35 L80 45" stroke="#EF4444" strokeWidth="8" strokeLinecap="round" />
+    {/* Person */}
+    {/* Body */}
+    <path d="M 100 45 Q 85 75 100 105 L 125 105 Q 135 75 125 45 Z" fill="#0f172a" />
+    {/* Leg */}
+    <path d="M 110 80 L 130 115 L 140 115" stroke="#1e293b" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    {/* Helmet */}
+    <circle cx="115" cy="30" r="20" fill="#0f172a" />
+    <rect x="122" y="18" width="12" height="18" rx="4" fill="#38bdf8" />
+    {/* Scarf/cape blowing in wind */}
+    <motion.path d="M 95 45 Q 70 40 55 55" stroke="#fef08a" strokeWidth="8" strokeLinecap="round" fill="none" animate={{ d: ["M 95 45 Q 70 40 55 55", "M 95 45 Q 70 50 50 45", "M 95 45 Q 70 40 55 55"] }} transition={{ duration: 0.4, repeat: Infinity }} />
+    {/* Arms holding handle */}
+    <path d="M 110 55 Q 135 50 145 60" stroke="#0f172a" strokeWidth="10" strokeLinecap="round" fill="none" />
   </svg>
 );
 
@@ -536,48 +550,37 @@ function TrackOrderContent() {
                             <p className="text-white/80 font-medium text-sm">Your order is out for delivery.</p>
                           </div>
                         </div>
-                        <div className="relative w-full h-40 mt-6 rounded-2xl overflow-hidden bg-gradient-to-b from-sky-400 to-sky-200 shadow-inner flex flex-col justify-end">
-                          {/* Sun */}
-                          <div className="absolute top-4 right-8 w-10 h-10 rounded-full bg-yellow-300 shadow-[0_0_20px_rgba(253,224,71,0.8)]" />
-                          
-                          {/* Clouds */}
-                          <motion.div initial={{ x: "100%" }} animate={{ x: "-200%" }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute top-6 left-10 opacity-60">
-                            <Cloud className="w-12 h-12 text-white fill-white" />
-                          </motion.div>
-                          <motion.div initial={{ x: "100%" }} animate={{ x: "-200%" }} transition={{ duration: 15, repeat: Infinity, ease: "linear", delay: 5 }} className="absolute top-2 left-40 opacity-80">
-                            <Cloud className="w-8 h-8 text-white fill-white" />
-                          </motion.div>
-                          
-                          {/* City Skyline */}
-                          <motion.div initial={{ x: 0 }} animate={{ x: "-50%" }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute bottom-12 flex whitespace-nowrap opacity-20">
-                             <div className="w-16 h-20 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-10 h-12 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-24 h-24 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-12 h-16 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-20 h-14 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-16 h-20 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-10 h-12 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-24 h-24 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-12 h-16 bg-slate-800 mx-1 rounded-t-sm" />
-                             <div className="w-20 h-14 bg-slate-800 mx-1 rounded-t-sm" />
+                        <div className="relative w-full h-28 mt-6 rounded-xl overflow-hidden bg-black/15 shadow-inner flex flex-col justify-end border border-white/10">
+                          {/* Parallax Background City - Subtle */}
+                          <motion.div initial={{ x: 0 }} animate={{ x: "-50%" }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute bottom-8 flex whitespace-nowrap opacity-10">
+                             <div className="w-16 h-12 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-10 h-8 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-24 h-16 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-12 h-10 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-20 h-14 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-16 h-12 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-10 h-8 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-24 h-16 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-12 h-10 bg-white mx-2 rounded-t-sm" />
+                             <div className="w-20 h-14 bg-white mx-2 rounded-t-sm" />
                           </motion.div>
 
                           {/* Road */}
-                          <div className="w-full h-12 bg-slate-700 relative border-t-4 border-slate-500 shadow-lg shrink-0">
+                          <div className="w-full h-8 bg-black/20 relative border-t border-white/10 shrink-0 flex items-center">
                             <motion.div 
                               initial={{ x: 0 }}
                               animate={{ x: "-48px" }}
                               transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }}
-                              className="absolute top-1/2 -translate-y-1/2 left-0 right-[-48px] w-[calc(100%+48px)] h-[3px] border-t-[4px] border-dashed border-yellow-400" 
+                              className="absolute left-0 right-[-48px] w-[calc(100%+48px)] h-[2px] border-t-[3px] border-dashed border-white/30" 
                             />
                           </div>
                           
-                          {/* Scooty SVG moving */}
+                          {/* Scooty SVG moving smoothly */}
                           <motion.div
-                            initial={{ x: "-20%", y: 0 }}
-                            animate={{ x: ["-20%", "40%", "40%", "120%"], y: [0, -2, 0, -2, 0] }}
-                            transition={{ x: { duration: 8, repeat: Infinity, ease: "linear" }, y: { duration: 0.4, repeat: Infinity, ease: "linear" } }}
-                            className="absolute bottom-2 z-10 drop-shadow-xl"
+                            initial={{ x: "-30%", y: 0 }}
+                            animate={{ x: "130%", y: [0, -1, 0, -1, 0] }}
+                            transition={{ x: { duration: 6, repeat: Infinity, ease: "linear" }, y: { duration: 0.3, repeat: Infinity, ease: "linear" } }}
+                            className="absolute bottom-1 z-10 drop-shadow-2xl"
                           >
                              <DeliveryScootyAnimation />
                           </motion.div>
