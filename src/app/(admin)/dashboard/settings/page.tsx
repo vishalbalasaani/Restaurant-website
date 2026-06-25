@@ -45,10 +45,10 @@ export default function SettingsPage() {
     setSaved(false);
     try {
       const supabase = createClient();
-      const { id, ...updateData } = settings as RestaurantSettings;
+      const { id, updated_at, kitchen_open, reservations_open, ...updateData } = settings as RestaurantSettings;
       await supabase
         .from('restaurant_settings')
-        .update({ ...updateData, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', id);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

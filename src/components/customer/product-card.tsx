@@ -81,7 +81,8 @@ export default function ProductCard({ product, index, kitchenOpen }: ProductCard
           <div className="flex items-center justify-between rounded-xl border border-accent bg-accent/5 px-2 py-1.5">
             <button
               onClick={() => updateQuantity(product.id, quantity - 1)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-primary shadow-sm transition-colors hover:bg-accent hover:text-white"
+              disabled={!kitchenOpen}
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-primary shadow-sm transition-colors hover:bg-accent hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Minus className="h-4 w-4" />
             </button>
@@ -90,7 +91,8 @@ export default function ProductCard({ product, index, kitchenOpen }: ProductCard
             </span>
             <button
               onClick={() => updateQuantity(product.id, quantity + 1)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white shadow-sm transition-colors hover:bg-primary-light"
+              disabled={!product.is_available || !kitchenOpen}
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white shadow-sm transition-colors hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="h-4 w-4" />
             </button>
