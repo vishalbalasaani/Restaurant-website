@@ -9,20 +9,22 @@ import { getEffectiveRestaurantStatus } from '@/lib/utils';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Partial<RestaurantSettings>>({
-    business_name: 'Flavour House',
-    phone: '+91 98765 43210',
-    whatsapp: '919876543210',
-    instagram: 'https://instagram.com/flavourhouse',
-    address: '42, Spice Lane, Jubilee Hills, Hyderabad — 500033',
+    business_name: '',
+    phone: '',
+    whatsapp: '',
+    instagram: '',
+    address: '',
     opening_time: '11:00',
     closing_time: '23:00',
     kitchen_open: true,
-    upi_id: 'flavourhouse@upi',
-    bank_details: 'HDFC Bank | A/C: 1234567890 | IFSC: HDFC0001234',
+    reservations_open: true,
+    upi_id: '',
+    bank_details: '',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -37,6 +39,25 @@ export default function SettingsPage() {
       }
     };
     fetchSettings();
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel('public:restaurant_settings:dashboard')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'restaurant_settings' }, (payload) => {
+        setSettings(payload.new as RestaurantSettings);
+      })
+      .subscribe();
+
+    // Force re-render every second to keep effective status perfectly synced
+    // with the physical passing of time without needing a page refresh.
+    const interval = setInterval(() => {
+      setCurrentTime(new Date()); 
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
