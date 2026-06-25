@@ -169,6 +169,7 @@ export function getEffectiveRestaurantStatus(settings: any) {
   const isReservationsTemporarilyClosed = isWithinPhysicalHours && !isReservationsOpen;
 
   return {
+    isOpen: isKitchenOpen,
     isKitchenOpen,
     isReservationsOpen,
     isEffectivelyOpen: isKitchenOpen,
@@ -178,6 +179,8 @@ export function getEffectiveRestaurantStatus(settings: any) {
     isOpeningSoon,
     closingTimeObj,
     openingTimeObj,
+    closingTime: closingTimeObj,
+    openingTime: openingTimeObj,
   };
 }
 
