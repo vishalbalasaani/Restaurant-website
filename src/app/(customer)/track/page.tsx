@@ -21,7 +21,15 @@ const STATUS_STEPS = [
   { key: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500', ring: 'ring-red-100', text: 'text-red-600' }
 ];
 
-
+const safeGetItem = (key: string) => {
+  try { return window.localStorage.getItem(key); } catch { return null; }
+};
+const safeSetItem = (key: string, value: string) => {
+  try { window.localStorage.setItem(key, value); } catch {}
+};
+const safeRemoveItem = (key: string) => {
+  try { window.localStorage.removeItem(key); } catch {}
+};
 
 const DeliveryScooterSVG = () => (
   <svg viewBox="0 0 100 80" className="w-20 h-16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -111,16 +119,16 @@ function TrackOrderContent() {
 
   const removeOrderFromStorage = (orderNum: string): string[] => {
     let remainingOrders: string[] = [];
-    const storedOrdersRaw = localStorage.getItem('recentOrders');
+    const storedOrdersRaw = safeGetItem('recentOrders');
     if (storedOrdersRaw) {
       try {
         remainingOrders = JSON.parse(storedOrdersRaw).filter((id: string) => id !== orderNum);
-        localStorage.setItem('recentOrders', JSON.stringify(remainingOrders));
+        safeSetItem('recentOrders', JSON.stringify(remainingOrders));
         setActiveOrders(remainingOrders);
       } catch {}
     }
-    if (localStorage.getItem('recentOrderNumber') === orderNum) {
-      localStorage.removeItem('recentOrderNumber');
+    if (safeGetItem('recentOrderNumber') === orderNum) {
+      safeRemoveItem('recentOrderNumber');
     }
     return remainingOrders;
   };
@@ -143,17 +151,16 @@ function TrackOrderContent() {
       const { data, error: fetchError } = await query.single();
 
       if (fetchError || !data) {
-        const storedOrdersRaw = localStorage.getItem('recentOrders');
+        const storedOrdersRaw = safeGetItem('recentOrders');
         if (storedOrdersRaw) {
           try {
             const ordersList = JSON.parse(storedOrdersRaw).filter((id: string) => id !== queryOrder);
-            localStorage.setItem('recentOrders', JSON.stringify(ordersList));
+            safeSetItem('recentOrders', JSON.stringify(ordersList));
             setActiveOrders(ordersList);
           } catch {}
         }
-        localStorage.removeItem('recentOrderNumber');
-        setOrder(null);
-        setOrderItems([]);
+        safeRemoveItem('recentOrderNumber');
+        setError('Order not found. Please check your order number.');
         return;
       }
 
@@ -192,7 +199,7 @@ function TrackOrderContent() {
   // Auto-load order from URL or localStorage on mount
   useEffect(() => {
     const urlOrder = searchParams.get('order');
-    const storedOrdersRaw = localStorage.getItem('recentOrders');
+    const storedOrdersRaw = safeGetItem('recentOrders');
     let ordersList: string[] = [];
     
     if (storedOrdersRaw) {
@@ -202,10 +209,10 @@ function TrackOrderContent() {
     }
 
     // Legacy fallback
-    const legacyOrder = localStorage.getItem('recentOrderNumber');
+    const legacyOrder = safeGetItem('recentOrderNumber');
     if (legacyOrder && !ordersList.includes(legacyOrder)) {
       ordersList.push(legacyOrder);
-      localStorage.setItem('recentOrders', JSON.stringify(ordersList));
+      safeSetItem('recentOrders', JSON.stringify(ordersList));
     }
 
      
