@@ -14,6 +14,7 @@ export const CATEGORIES = [
 
 export const NAV_LINKS = [
   { label: 'Menu', href: '/menu' },
+  { label: 'Table Reservation', href: '/reserve' },
   { label: 'Track Order', href: '/track' },
   { label: 'Contact', href: '/contact' },
 ] as const;

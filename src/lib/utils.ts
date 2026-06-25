@@ -56,6 +56,43 @@ ${itemsList}
 Please confirm my order so I can make the payment. I am ready to pay via UPI!`;
 }
 
+export function formatReservationForWhatsApp(reservation: {
+  reservation_number: string;
+  customer_name: string;
+  reservation_date: string;
+  start_time: string;
+  number_of_guests: number;
+  table_name: string | null;
+}): string {
+  const formattedDate = new Date(reservation.reservation_date).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+  
+  // Format start_time which is HH:MM:SS
+  const [hours, minutes] = reservation.start_time.split(':');
+  const d = new Date();
+  d.setHours(parseInt(hours), parseInt(minutes));
+  const formattedTime = new Intl.DateTimeFormat('en-IN', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(d);
+
+  return `👋 Hello ${reservation.customer_name}!
+Your table reservation at Flavour House is Confirmed! 🎉
+
+📝 RESERVATION DETAILS
+*ID:* #${reservation.reservation_number}
+*Date:* ${formattedDate}
+*Time:* ${formattedTime}
+*Table:* ${reservation.table_name || 'Assigned Table'}
+*Guests:* ${reservation.number_of_guests} People
+
+We look forward to welcoming you!`;
+}
+
 export function getStatusStep(status: string): number {
   const steps: Record<string, number> = {
     pending_payment: 0,
@@ -95,6 +132,37 @@ export function playBuzzer() {
       
       osc.start(ctx.currentTime + i * 0.25);
       osc.stop(ctx.currentTime + i * 0.25 + 0.2);
+    }
+  } catch {
+    // Ignore if AudioContext is blocked by browser interaction policies
+  }
+}
+
+export function playReservationBuzzer() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    
+    const ctx = new AudioContext();
+    
+    // Play 2 distinct "chimes" for reservation (different from order buzzer)
+    for (let i = 0; i < 2; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime + i * 0.4); // C5 note
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.4);
+      gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + i * 0.4 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.4 + 0.35);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start(ctx.currentTime + i * 0.4);
+      osc.stop(ctx.currentTime + i * 0.4 + 0.35);
     }
   } catch {
     // Ignore if AudioContext is blocked by browser interaction policies

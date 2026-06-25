@@ -99,6 +99,7 @@ export interface RestaurantSettings {
   opening_time: string;
   closing_time: string;
   kitchen_open: boolean;
+  reservations_open: boolean;
   upi_id: string;
   bank_details: string;
   updated_at: string;
@@ -170,3 +171,33 @@ export const ORDER_STATUS_FLOW: OrderStatus[] = [
   'out_for_delivery',
   'delivered',
 ];
+
+export interface RestaurantTable {
+  id: string;
+  table_number: string;
+  table_name: string | null;
+  capacity: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ReservationStatus = 'reserved' | 'confirmed' | 'completed' | 'cancelled';
+
+export interface TableReservation {
+  id: string;
+  reservation_number: string;
+  customer_name: string;
+  phone_number: string;
+  email: string | null;
+  table_id: string;
+  reservation_date: string;
+  start_time: string;
+  end_time: string;
+  number_of_guests: number;
+  special_request: string | null;
+  status: ReservationStatus;
+  created_at: string;
+  updated_at: string;
+  restaurant_tables?: RestaurantTable;
+}

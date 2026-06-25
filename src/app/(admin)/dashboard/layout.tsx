@@ -14,19 +14,24 @@ import {
   Menu,
   X,
   Truck,
+  CalendarDays,
+  BellRing,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
-import { playBuzzer } from '@/lib/utils';
+import { playBuzzer, playReservationBuzzer } from '@/lib/utils';
 const NAV_ITEMS = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Live Orders', href: '/dashboard/notifications', icon: ChefHat },
   { label: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
   { label: 'Menu', href: '/dashboard/menu', icon: UtensilsCrossed },
   { label: 'Drivers', href: '/dashboard/drivers', icon: Truck },
+  { label: 'Table Reservation', href: '/dashboard/reservations/list', icon: CalendarDays },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
+
+// --- existing code until DashboardLayout function ---
 
 function Sidebar({
   pathname,
@@ -50,7 +55,7 @@ function Sidebar({
       {/* Nav */}
       <nav className="flex-1 space-y-1 p-4">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
           const Icon = item.icon;
           return (
             <Link
@@ -95,6 +100,17 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [settings, setSettings] = useState<Partial<RestaurantSettings>>({});
+  
+  // Custom toast notification state
+  const [toasts, setToasts] = useState<{id: string, title: string, message: string}[]>([]);
+
+  const addToast = (title: string, message: string) => {
+    const id = Date.now().toString();
+    setToasts(prev => [...prev, { id, title, message }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 6000); // 6 seconds
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -109,14 +125,15 @@ export default function DashboardLayout({
     fetchSettings();
 
     const supabase = createClient();
-    const channel = supabase
-      .channel('global-admin-orders')
+    const orderChannel = supabase
+      .channel('global-admin-events')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'orders' },
         (payload) => {
           if (payload.eventType === 'INSERT') {
             playBuzzer();
+            addToast('New Order Received!', 'A new live order has just been placed.');
             router.push('/dashboard/notifications');
           } else if (payload.eventType === 'UPDATE') {
              // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -125,6 +142,7 @@ export default function DashboardLayout({
              const oldStatus = (payload.old as any).status;
              if (newStatus === 'cancellation_requested' && oldStatus !== 'cancellation_requested') {
                playBuzzer();
+               addToast('Cancellation Requested!', 'A customer requested to cancel an order.');
                router.push('/dashboard/notifications');
              }
           }
@@ -132,7 +150,23 @@ export default function DashboardLayout({
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const reservationChannel = supabase
+      .channel('global-admin-reservation-events')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'table_reservations' },
+        (payload) => {
+          playReservationBuzzer();
+          addToast('New Table Reservation!', 'A customer requested a new table reservation.');
+          router.push('/dashboard/reservations/list');
+        }
+      )
+      .subscribe();
+
+    return () => { 
+      supabase.removeChannel(orderChannel); 
+      supabase.removeChannel(reservationChannel); 
+    };
   }, [router]);
 
   const handleLogout = async () => {
@@ -215,6 +249,19 @@ export default function DashboardLayout({
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           {children}
         </main>
+      </div>
+
+      {/* Custom Toasts */}
+      <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+        {toasts.map(toast => (
+          <div key={toast.id} className="flex min-w-[300px] animate-in slide-in-from-right-8 fade-in duration-300 items-start gap-3 rounded-xl border border-primary/20 bg-primary/95 p-4 text-white shadow-2xl backdrop-blur-md">
+            <BellRing className="mt-0.5 h-5 w-5 text-accent" />
+            <div>
+              <p className="font-heading text-sm font-bold">{toast.title}</p>
+              <p className="mt-1 text-xs text-white/80">{toast.message}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

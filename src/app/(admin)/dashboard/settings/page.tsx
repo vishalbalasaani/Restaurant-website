@@ -114,6 +114,39 @@ export default function SettingsPage() {
         </div>
       </motion.div>
 
+      {/* Reservations Status Toggle */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`rounded-2xl border p-6 card-shadow ${settings.reservations_open ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-heading text-lg font-semibold text-primary">Table Reservations</h3>
+            <p className="text-sm text-text-light">
+              {settings.reservations_open ? 'Reservations are open — customers can book tables' : 'Reservations are closed — bookings disabled'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!settings.id) return;
+              const newValue = !settings.reservations_open;
+              setSettings((prev) => ({ ...prev, reservations_open: newValue }));
+              try {
+                const supabase = createClient();
+                await supabase.from('restaurant_settings').update({ reservations_open: newValue, updated_at: new Date().toISOString() }).eq('id', settings.id);
+              } catch {
+                setSettings((prev) => ({ ...prev, reservations_open: !newValue }));
+              }
+            }}
+            className={`relative h-8 w-14 rounded-full transition-colors ${settings.reservations_open ? 'bg-green-500' : 'bg-red-400'}`}
+          >
+            <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-transform ${settings.reservations_open ? 'left-7' : 'left-1'}`} />
+          </button>
+        </div>
+      </motion.div>
+
       {/* Business Info */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl border border-border bg-card p-6 card-shadow">
         <div className="mb-4 flex items-center gap-2">
