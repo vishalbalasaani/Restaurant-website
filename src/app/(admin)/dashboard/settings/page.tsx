@@ -188,11 +188,37 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="settingsOpeningTime" className="mb-1.5 block text-sm font-medium text-text">Opening Time</label>
-            <input id="settingsOpeningTime" type="time" value={settings.opening_time ? settings.opening_time.slice(0, 5) : '11:00'} onChange={(e) => handleChange('opening_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
+            <input 
+              id="settingsOpeningTime" 
+              type="time" 
+              value={(() => {
+                if (!settings.opening_time) return '11:00';
+                if (settings.opening_time.includes('T')) {
+                  const d = new Date(settings.opening_time);
+                  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                }
+                return settings.opening_time.slice(0, 5);
+              })()} 
+              onChange={(e) => handleChange('opening_time', e.target.value)} 
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
+            />
           </div>
           <div>
             <label htmlFor="settingsClosingTime" className="mb-1.5 block text-sm font-medium text-text">Closing Time</label>
-            <input id="settingsClosingTime" type="time" value={settings.closing_time ? settings.closing_time.slice(0, 5) : '23:00'} onChange={(e) => handleChange('closing_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
+            <input 
+              id="settingsClosingTime" 
+              type="time" 
+              value={(() => {
+                if (!settings.closing_time) return '23:00';
+                if (settings.closing_time.includes('T')) {
+                  const d = new Date(settings.closing_time);
+                  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                }
+                return settings.closing_time.slice(0, 5);
+              })()} 
+              onChange={(e) => handleChange('closing_time', e.target.value)} 
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
+            />
           </div>
         </div>
       </motion.div>
