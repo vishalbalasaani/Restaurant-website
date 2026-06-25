@@ -171,6 +171,7 @@ export default function OrdersPage() {
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Customer</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Items</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Delivery</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Rating</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Date</th>
@@ -217,6 +218,19 @@ export default function OrdersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 font-heading text-sm font-semibold">{formatPrice(order.total_amount)}</td>
+                    <td className="px-6 py-4">
+                      {order.driver_id ? (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-bold text-text truncate max-w-[150px]">{order.driver_name}</span>
+                          <span className="text-xs text-text-muted">{order.driver_mobile_number}</span>
+                          <span className="inline-block mt-0.5 rounded bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent max-w-fit border border-accent/20">
+                            {order.driver_vehicle_number}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs font-medium text-text-light italic">Not Assigned</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4">
                       {order.status === 'delivered' || order.status === 'cancelled' ? (
                         <span className={`inline-block rounded-lg border-2 px-3 py-1.5 text-xs font-bold uppercase tracking-wider opacity-80 ${

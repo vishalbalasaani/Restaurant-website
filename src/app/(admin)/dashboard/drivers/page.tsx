@@ -254,7 +254,7 @@ export default function DriversPage() {
                 <div className="h-10 w-px bg-border hidden md:block"></div>
                 <div className="flex flex-col items-center justify-center flex-1 md:flex-none">
                   <span className="text-xs font-medium uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" /> Active
+                    <Clock className="h-3.5 w-3.5" /> On The Way
                   </span>
                   <span className={`font-heading text-xl font-bold ${driver.active_orders > 0 ? 'text-accent' : 'text-text'}`}>{driver.active_orders}</span>
                 </div>
