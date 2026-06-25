@@ -78,49 +78,55 @@ export function DriverHistoryModal({ driverId, driverName, onClose }: DriverHist
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {orders.map((order) => (
-                <div key={order.id} className="border border-border rounded-xl p-5 bg-background shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between border-b border-border/50 pb-4 mb-4">
-                    <div>
-                      <h3 className="font-heading text-lg font-bold text-text">{order.order_number}</h3>
-                      <p className="text-xs text-text-muted mt-1">{formatDate(order.created_at)}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-heading text-lg font-bold text-primary">{formatPrice(order.total_amount)}</span>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-green-600 bg-green-50 inline-block px-2 py-0.5 rounded-full mt-1 border border-green-200">
-                        Delivered
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="text-xs font-bold uppercase text-text-muted mb-2 flex items-center gap-1">
-                        Customer Details
-                      </h4>
-                      <p className="font-medium text-text">{order.customer_name}</p>
-                      <p className="text-sm text-text-light">{order.customer_phone}</p>
-                      <div className="flex items-start gap-1 mt-2 text-sm text-text-light bg-accent/5 p-2 rounded-lg border border-accent/10">
-                        <MapPin className="h-4 w-4 shrink-0 text-accent mt-0.5" />
-                        <p>{order.customer_address}</p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="text-xs font-bold uppercase text-text-muted mb-2">Order Items</h4>
-                      <div className="space-y-1.5">
-                        {order.order_items?.map((item: any) => (
-                          <div key={item.id} className="flex items-start gap-2 text-sm">
-                            <span className="font-bold text-text">{item.quantity}x</span>
-                            <span className="text-text-light break-words">{item.product_name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto rounded-xl border border-border bg-background">
+              <table className="w-full text-left border-collapse min-w-[700px]">
+                <thead className="bg-background/80 border-b border-border text-xs uppercase tracking-wider text-text-muted font-bold">
+                  <tr>
+                    <th className="p-4">Order ID</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Customer</th>
+                    <th className="p-4">Items</th>
+                    <th className="p-4 text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {orders.map((order) => (
+                    <tr key={order.id} className="hover:bg-accent/5 transition-colors">
+                      <td className="p-4">
+                        <span className="font-heading font-bold text-text">{order.order_number}</span>
+                      </td>
+                      <td className="p-4 text-xs font-medium text-text-light whitespace-nowrap">
+                        {formatDate(order.created_at)}
+                      </td>
+                      <td className="p-4">
+                        <p className="font-medium text-text text-sm">{order.customer_name}</p>
+                        <p className="text-xs text-text-muted">{order.customer_phone}</p>
+                        <div className="flex items-start gap-1 mt-1 text-[10px] text-text-light bg-accent/5 p-1 rounded border border-accent/10 max-w-[200px]">
+                          <MapPin className="h-3 w-3 shrink-0 text-accent" />
+                          <p className="truncate">{order.customer_address}</p>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex flex-col gap-1 text-xs">
+                          {order.order_items?.map((item: any) => (
+                            <span key={item.id} className="text-text-light">
+                              <span className="font-bold text-text">{item.quantity}x</span> {item.product_name}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="p-4 text-right whitespace-nowrap">
+                        <div className="font-heading text-sm font-bold text-primary mb-1">
+                          {formatPrice(order.total_amount)}
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-green-600 bg-green-50 inline-block px-2 py-0.5 rounded border border-green-200">
+                          Delivered
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
