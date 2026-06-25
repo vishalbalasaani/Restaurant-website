@@ -34,7 +34,13 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    // Force re-render every 10 seconds so the effective toggles visually update instantly
+    const interval = setInterval(() => setTick(t => t + 1), 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -261,14 +267,6 @@ export default function SettingsPage() {
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
               >
                 {TIME_SLOTS.map(({ val, label }) => {
-                  // Filter out past times if it's today
-                  const now = new Date();
-                  const isToday = settings.opening_time && settings.opening_time.split('T')[0] === now.toISOString().split('T')[0];
-                  const currentH = now.getHours();
-                  const currentM = now.getMinutes();
-                  const [slotH, slotM] = val.split(':').map(Number);
-                  const isPast = isToday && (slotH < currentH || (slotH === currentH && slotM < currentM));
-                  if (isPast) return null;
                   return <option key={val} value={val}>{label}</option>;
                 })}
               </select>
