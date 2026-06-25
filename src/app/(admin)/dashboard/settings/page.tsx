@@ -37,12 +37,6 @@ export default function SettingsPage() {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    // Force re-render every 10 seconds so the effective toggles visually update instantly
-    const interval = setInterval(() => setTick(t => t + 1), 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
     const fetchSettings = async () => {
       try {
         const supabase = createClient();
@@ -67,7 +61,7 @@ export default function SettingsPage() {
     // Force re-render every second to keep effective status perfectly synced
     // with the physical passing of time without needing a page refresh.
     const interval = setInterval(() => {
-      setCurrentTime(new Date()); 
+      setTick(t => t + 1); 
     }, 1000);
 
     return () => {
