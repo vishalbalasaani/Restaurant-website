@@ -201,6 +201,7 @@ export default function LiveOrdersPage() {
     if (order.status === 'out_for_delivery') {
       const waMessage = `📦 *New Delivery - Order #${order.order_number}*
 Customer: ${order.customer_name}
+Phone: ${order.customer_phone}
 Address: ${order.customer_address}
 
 📍 *Get Customer Location:*
