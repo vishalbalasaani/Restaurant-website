@@ -205,7 +205,7 @@ Address: ${order.customer_address}
 
 📍 *Get Customer Location:*
 Driver, click the link below to ask the customer for their live location:
-https://wa.me/${order.customer_phone.replace(/\D/g, '')}?text=Hi!%20I%20am%20your%20delivery%20partner.%20Please%20share%20your%20live%20location.`;
+https://wa.me/${order.customer_phone.replace(/\D/g, '')}?text=Hi!%20I'm%20${encodeURIComponent(order.driver_name || 'your delivery partner')},%20your%20delivery%20partner.%20Kindly%20send%20the%20current%20location%20of%20your%20address%20for%20fast%20delivery.`;
       
       const notifyLink = order.driver_mobile_number 
         ? `https://wa.me/${order.driver_mobile_number.replace(/\D/g, '')}?text=${encodeURIComponent(waMessage)}`
