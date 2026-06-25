@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import type { RestaurantTable, TableReservation, RestaurantSettings } from '@/lib/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { formatTime } from '@/lib/utils';
 
 export default function ReserveTablePage() {
   const router = useRouter();
@@ -315,7 +316,7 @@ export default function ReserveTablePage() {
                   Reservation ID: #{reservationNumber}
                 </div>
               )}
-              <p className="text-text-light mb-8">Your table is confirmed! We look forward to welcoming you on {new Date(date).toLocaleDateString()} at {time}.</p>
+              <p className="text-text-light mb-8">Your table is confirmed! We look forward to welcoming you on {new Date(date).toLocaleDateString()} at {formatTime(time)}.</p>
               <div className="space-y-4">
                 <Link href="/menu" className="block w-full py-3 rounded-xl bg-primary text-white font-bold transition-colors hover:bg-primary-light">
                   Explore Our Menu
@@ -416,7 +417,7 @@ export default function ReserveTablePage() {
                 <div className="grid grid-cols-3 gap-2 overflow-y-auto pb-24 scrollbar-hide">
                   {timeSlots.map(t => (
                     <button key={t} onClick={() => setTime(t)} className={`py-3 rounded-xl border-2 text-sm font-bold transition-all ${time === t ? 'border-primary bg-primary text-white shadow-md shadow-primary/20' : 'border-border bg-card text-text'}`}>
-                      {t}
+                      {formatTime(t)}
                     </button>
                   ))}
                 </div>
@@ -447,7 +448,7 @@ export default function ReserveTablePage() {
                   <p className="text-text-light text-sm max-w-[250px] mx-auto mb-8">
                     {!hasAnyActiveTablesForCapacity 
                       ? `${guests} member tables are currently unavailable. Please try a different number of guests.` 
-                      : `We are fully booked for ${guests} guests at ${time}. Please try another time.`}
+                      : `We are fully booked for ${guests} guests at ${formatTime(time)}. Please try another time.`}
                   </p>
                   <button onClick={() => setStep(1)} className="px-6 py-3 rounded-xl bg-primary/10 text-primary font-bold">Change Search</button>
                 </div>
@@ -474,7 +475,7 @@ export default function ReserveTablePage() {
                   <CalendarIcon className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="font-bold text-text text-sm">{new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {time}</p>
+                  <p className="font-bold text-text text-sm">{new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {formatTime(time)}</p>
                   <p className="text-xs font-medium text-text-light">{guests} Guests • {selectedTable?.table_name || selectedTable?.table_number}</p>
                 </div>
               </div>
