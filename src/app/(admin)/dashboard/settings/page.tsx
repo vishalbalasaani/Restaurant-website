@@ -45,11 +45,26 @@ export default function SettingsPage() {
     setSaved(false);
     try {
       const supabase = createClient();
-      const { id, updated_at, kitchen_open, reservations_open, ...updateData } = settings as RestaurantSettings;
+      const { id, updated_at, ...updateData } = settings as RestaurantSettings;
+      
+      // Sync the physical DB toggles with the current effective status
+      // This ensures that if the DB auto-updates `updated_at`, it doesn't accidentally
+      // lock in an "override" state that contradicts the schedule they just saved.
+      const status = getEffectiveRestaurantStatus(settings);
+      updateData.kitchen_open = status.isKitchenOpen;
+      updateData.reservations_open = status.isReservationsOpen;
+
       await supabase
         .from('restaurant_settings')
         .update(updateData)
         .eq('id', id);
+        
+      // Update local state to match what we just saved
+      setSettings((prev) => ({
+        ...prev,
+        kitchen_open: status.isKitchenOpen,
+        reservations_open: status.isReservationsOpen,
+      }));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {
