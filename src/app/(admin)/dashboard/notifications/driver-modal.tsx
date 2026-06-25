@@ -19,6 +19,21 @@ export function DriverAssignmentModal({ order, onClose, onAssigned }: DriverModa
   const [searchQuery, setSearchQuery] = useState('');
   const [assigningId, setAssigningId] = useState<string | null>(null);
 
+  async function fetchDrivers() {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('drivers')
+      .select('*')
+      .eq('availability_status', 'Available')
+      .eq('is_active', true)
+      .order('name');
+    
+    if (data) {
+      setDrivers(data as Driver[]);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     fetchDrivers();
     
@@ -35,23 +50,6 @@ export function DriverAssignmentModal({ order, onClose, onAssigned }: DriverModa
 
     return () => { supabase.removeChannel(channel); };
   }, []);
-
-  const fetchDrivers = async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from('drivers')
-      .select('*')
-      .eq('availability_status', 'Available')
-      .eq('is_active', true)
-      .order('name');
-    
-    if (data) {
-      setDrivers(data as Driver[]);
-    }
-    setLoading(false);
-  };
-
-
 
   const handleAssignDriver = async (driver: Driver) => {
     setAssigningId(driver.id);

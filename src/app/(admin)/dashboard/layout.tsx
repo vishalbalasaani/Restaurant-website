@@ -136,9 +136,9 @@ export default function DashboardLayout({
             addToast('New Order Received!', 'A new live order has just been placed.');
             router.push('/dashboard/notifications');
           } else if (payload.eventType === 'UPDATE') {
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              
              const newStatus = (payload.new as any).status;
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              
              const oldStatus = (payload.old as any).status;
              if (newStatus === 'cancellation_requested' && oldStatus !== 'cancellation_requested') {
                playBuzzer();

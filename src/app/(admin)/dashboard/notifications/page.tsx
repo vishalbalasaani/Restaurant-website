@@ -27,7 +27,7 @@ export default function LiveOrdersPage() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     fetchLiveOrders();
 
     const supabase = createClient();

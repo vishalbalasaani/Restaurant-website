@@ -106,7 +106,7 @@ function TrackOrderContent() {
     return () => {
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [order?.id]);
 
   const removeOrderFromStorage = (orderNum: string): string[] => {
@@ -208,7 +208,7 @@ function TrackOrderContent() {
       localStorage.setItem('recentOrders', JSON.stringify(ordersList));
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setActiveOrders(ordersList);
 
     if (urlOrder) {
@@ -219,7 +219,7 @@ function TrackOrderContent() {
       setOrderNumber(latestOrder);
       performSearch(latestOrder);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const currentStep = order ? getStatusStep(order.status) : -1;
