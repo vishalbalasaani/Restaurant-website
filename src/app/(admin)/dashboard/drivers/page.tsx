@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Truck, CheckCircle2, Clock, Loader2, Power, Plus, Upload, X, MapPin } from 'lucide-react';
+import { Truck, CheckCircle2, Clock, Loader2, Power, Plus, Upload, X, MapPin, Phone, FileText, Search, Trash2, Edit2, ShieldAlert, CheckCircle, Package } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { DriverHistoryModal } from '../driver-history-modal';
 import type { Driver, Order } from '@/lib/types';
 import Image from 'next/image';
 
@@ -25,6 +26,8 @@ export default function DriversPage() {
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [newPhotoPreview, setNewPhotoPreview] = useState<string>('');
   const [savingDriver, setSavingDriver] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [viewingDriver, setViewingDriver] = useState<{id: string, name: string} | null>(null);
 
   const fetchDriversAndStats = async () => {
     try {
@@ -262,6 +265,13 @@ export default function DriversPage() {
 
               {/* Actions */}
               <div className="flex flex-col md:flex-row items-center justify-end w-full md:w-auto shrink-0 gap-2 pl-2">
+                <button
+                  onClick={() => setViewingDriver({ id: driver.id, name: driver.name })}
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 w-full md:w-auto"
+                >
+                  <Package className="h-4 w-4" />
+                  History
+                </button>
                 {driver.availability_status === 'Assigned' && driver.active_orders === 0 && driver.is_active && (
                   <button
                     onClick={() => markDriverArrived(driver.id)}
@@ -408,6 +418,17 @@ export default function DriversPage() {
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Driver History Modal */}
+      <AnimatePresence>
+        {viewingDriver && (
+          <DriverHistoryModal
+            driverId={viewingDriver.id}
+            driverName={viewingDriver.name}
+            onClose={() => setViewingDriver(null)}
+          />
         )}
       </AnimatePresence>
     </div>

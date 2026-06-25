@@ -9,7 +9,6 @@ import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
 import type { Order } from '@/lib/types';
-import { DriverHistoryModal } from './driver-history-modal';
 
 interface StatCard {
   label: string;
@@ -22,8 +21,6 @@ interface StatCard {
 export default function DashboardOverview() {
   const [stats, setStats] = useState({ today: 0, pending: 0, completed: 0, revenue: 0 });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [driverStats, setDriverStats] = useState<{id: string, name: string, delivered: number}[]>([]);
-  const [viewingDriver, setViewingDriver] = useState<{id: string, name: string} | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
@@ -58,19 +55,6 @@ export default function DashboardOverview() {
           .limit(10);
 
         setRecentOrders(recent || []);
-
-        // Fetch driver stats
-        const { data: driversData } = await supabase.from('drivers').select('id, name');
-        const { data: driverOrders } = await supabase.from('orders').select('driver_id, status').eq('status', 'delivered').not('driver_id', 'is', null);
-        
-        if (driversData && driverOrders) {
-          const dStats = driversData.map(d => ({
-            id: d.id,
-            name: d.name,
-            delivered: driverOrders.filter(o => o.driver_id === d.id).length
-          })).sort((a, b) => b.delivered - a.delivered).slice(0, 5); // top 5 drivers
-          setDriverStats(dStats);
-        }
       } catch {
         // Fallback
       } finally {
@@ -204,158 +188,104 @@ export default function DashboardOverview() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Recent Orders Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-2xl border border-border bg-card card-shadow lg:col-span-2 overflow-hidden flex flex-col"
-        >
-          <div className="flex flex-col gap-4 border-b border-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="font-heading text-lg font-semibold text-primary">Recent Orders</h3>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleDownloadWeeklyReport}
-                disabled={isGeneratingPdf}
-                className="flex items-center gap-2 rounded-lg bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isGeneratingPdf ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4" />
-                    Weekly PDF
-                  </>
-                )}
-              </button>
-              <a href="/dashboard/orders" className="text-sm font-medium text-text-light transition-colors hover:text-primary">
-                View All →
-              </a>
-            </div>
+      {/* Recent Orders Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="rounded-2xl border border-border bg-card card-shadow"
+      >
+        <div className="flex flex-col gap-4 border-b border-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="font-heading text-lg font-semibold text-primary">Recent Orders</h3>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleDownloadWeeklyReport}
+              disabled={isGeneratingPdf}
+              className="flex items-center gap-2 rounded-lg bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Weekly PDF
+                </>
+              )}
+            </button>
+            <a href="/dashboard/orders" className="text-sm font-medium text-text-light transition-colors hover:text-primary">
+              View All →
+            </a>
           </div>
+        </div>
 
-          {loading ? (
-            <div className="p-8 text-center flex-1 flex flex-col justify-center">
-              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-          ) : recentOrders.length === 0 ? (
-            <div className="p-12 text-center flex-1 flex flex-col justify-center">
-              <Package className="mx-auto mb-3 h-12 w-12 text-border" />
-              <p className="text-sm text-text-light">No orders yet. They&apos;ll appear here in real-time.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto flex-1">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border bg-background/50">
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Order ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Customer</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Delivery</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Date</th>
+        {loading ? (
+          <div className="p-8 text-center">
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : recentOrders.length === 0 ? (
+          <div className="p-12 text-center">
+            <Package className="mx-auto mb-3 h-12 w-12 text-border" />
+            <p className="text-sm text-text-light">No orders yet. They&apos;ll appear here in real-time.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border bg-background/50">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Order ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Customer</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Delivery</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {recentOrders.map((order) => (
+                  <tr key={order.id} className="transition-colors hover:bg-background/50">
+                    <td className="px-6 py-4 font-heading text-sm font-semibold text-accent">
+                      {order.order_number}
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-text">{order.customer_name}</p>
+                      <p className="text-xs text-text-muted">{order.customer_phone}</p>
+                    </td>
+                    <td className="px-6 py-4 font-heading text-sm font-semibold text-primary">
+                      {formatPrice(order.total_amount)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {order.driver_id ? (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-bold text-text truncate max-w-[120px]">{order.driver_name}</span>
+                          <span className="text-xs text-text-muted">{order.driver_mobile_number}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs font-medium text-text-light italic">Not Assigned</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+                        order.status === 'delivered' ? 'bg-green-50 text-green-700' :
+                        order.status === 'cancelled' ? 'bg-red-50 text-red-700' :
+                        order.status === 'pending_payment' ? 'bg-orange-50 text-orange-700' :
+                        'bg-blue-50 text-blue-700'
+                      }`}>
+                        {ORDER_STATUS_LABELS[order.status as keyof typeof ORDER_STATUS_LABELS] || order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-text-light">
+                      {formatDate(order.created_at)}
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="transition-colors hover:bg-background/50">
-                      <td className="px-6 py-4 font-heading text-sm font-semibold text-accent">
-                        {order.order_number}
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm font-medium text-text">{order.customer_name}</p>
-                        <p className="text-xs text-text-muted">{order.customer_phone}</p>
-                      </td>
-                      <td className="px-6 py-4 font-heading text-sm font-semibold text-primary">
-                        {formatPrice(order.total_amount)}
-                      </td>
-                      <td className="px-6 py-4">
-                        {order.driver_id ? (
-                          <div className="flex flex-col gap-1">
-                            <span className="text-sm font-bold text-text truncate max-w-[120px]">{order.driver_name}</span>
-                            <span className="text-xs text-text-muted">{order.driver_mobile_number}</span>
-                          </div>
-                        ) : (
-                          <span className="text-xs font-medium text-text-light italic">Not Assigned</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
-                          order.status === 'delivered' ? 'bg-green-50 text-green-700' :
-                          order.status === 'cancelled' ? 'bg-red-50 text-red-700' :
-                          order.status === 'pending_payment' ? 'bg-orange-50 text-orange-700' :
-                          'bg-blue-50 text-blue-700'
-                        }`}>
-                          {ORDER_STATUS_LABELS[order.status as keyof typeof ORDER_STATUS_LABELS] || order.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-text-light">
-                        {formatDate(order.created_at)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Top Drivers Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="rounded-2xl border border-border bg-card card-shadow p-6 flex flex-col h-full lg:col-span-1"
-        >
-          <h3 className="font-heading text-lg font-semibold text-primary mb-6">Top Delivery Partners</h3>
-          <div className="space-y-4 flex-1">
-            {loading ? (
-              <div className="flex justify-center items-center h-full">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : driverStats.length === 0 ? (
-              <p className="text-sm text-text-light text-center py-4">No driver data yet.</p>
-            ) : (
-              driverStats.map((driver, idx) => (
-                <button 
-                  key={driver.id} 
-                  onClick={() => setViewingDriver({ id: driver.id, name: driver.name })}
-                  className="flex w-full items-center justify-between border-b border-border pb-3 last:border-0 last:pb-0 hover:bg-accent/5 p-2 rounded-lg transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-bold text-sm">
-                      {idx + 1}
-                    </div>
-                    <span className="font-medium text-text truncate max-w-[120px]">{driver.name}</span>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-bold text-primary">{driver.delivered}</p>
-                    <p className="text-[10px] uppercase text-text-muted font-bold tracking-wider">Delivered</p>
-                  </div>
-                </button>
-              ))
-            )}
+                ))}
+              </tbody>
+            </table>
           </div>
-          <a href="/dashboard/drivers" className="mt-6 text-sm font-bold text-accent hover:text-primary transition-colors text-center w-full block">
-            Manage All Drivers →
-          </a>
-        </motion.div>
-      </div>
-      
-      {/* Driver History Modal */}
-      <AnimatePresence>
-        {viewingDriver && (
-          <DriverHistoryModal
-            driverId={viewingDriver.id}
-            driverName={viewingDriver.name}
-            onClose={() => setViewingDriver(null)}
-          />
         )}
-      </AnimatePresence>
+      </motion.div>
     </div>
   );
 }
