@@ -58,6 +58,23 @@ export interface Order {
   created_at: string;
   updated_at: string;
   order_items?: OrderItem[];
+  driver_id?: string | null;
+  driver_name?: string | null;
+  driver_mobile_number?: string | null;
+  driver_vehicle_number?: string | null;
+  driver_photo_url?: string | null;
+  driver_assigned_at?: string | null;
+}
+
+export interface Driver {
+  id: string;
+  name: string;
+  mobile_number: string;
+  vehicle_number: string;
+  photo_url: string;
+  availability_status: 'Available' | 'Assigned';
+  created_at: string;
+  updated_at: string;
 }
 
 export interface OrderItem {

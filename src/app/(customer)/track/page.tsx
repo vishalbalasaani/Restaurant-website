@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle } from 'lucide-react';
+import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle, Phone } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate, getStatusStep } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
@@ -421,6 +421,43 @@ function TrackOrderContent() {
                             Please message {settings.whatsapp}
                           </p>
                         </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Delivery Partner Info */}
+                  {order.status === 'out_for_delivery' && order.driver_id && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-border bg-card overflow-hidden">
+                      <div className="bg-primary/5 p-4 border-b border-border flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Truck className="h-5 w-5 text-primary" />
+                          <h4 className="font-heading font-bold text-text">Delivery Partner</h4>
+                        </div>
+                        <span className="text-xs font-bold text-primary uppercase tracking-wider bg-primary/10 px-2 py-1 rounded-md">On The Way</span>
+                      </div>
+                      <div className="p-4 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+                        <div className="relative h-20 w-20 rounded-full overflow-hidden shrink-0 border-2 border-border shadow-sm">
+                          {order.driver_photo_url ? (
+                            <img src={order.driver_photo_url} alt={order.driver_name || 'Driver'} className="object-cover w-full h-full" />
+                          ) : (
+                            <div className="w-full h-full bg-accent/20 flex items-center justify-center">
+                              <Truck className="h-8 w-8 text-accent" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-1 mt-1">
+                          <h4 className="font-heading text-xl font-bold text-text">{order.driver_name}</h4>
+                          <p className="text-sm font-medium text-text-light">{order.driver_mobile_number}</p>
+                          <div className="inline-block px-2.5 py-1 rounded-md bg-accent/10 border border-accent/20 text-xs font-bold text-accent tracking-widest mt-1">
+                            {order.driver_vehicle_number}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-background border-t border-border">
+                        <a href={`tel:${order.driver_mobile_number}`} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-button text-sm font-bold text-white transition-colors hover:bg-primary-light shadow-md shadow-primary/20">
+                          <Phone className="h-4 w-4" />
+                          Call Delivery Partner
+                        </a>
                       </div>
                     </motion.div>
                   )}

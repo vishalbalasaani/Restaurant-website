@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, CheckCircle2, XCircle, Clock, UtensilsCrossed, Package, Truck, Check, MessageCircle, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import type { Order } from '@/lib/types';
+import type { Order, OrderStatus } from '@/lib/types';
 import { formatPrice, playBuzzer, formatDate } from '@/lib/utils';
+import { DriverAssignmentModal } from './driver-modal';
 
 export default function LiveOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
+  const [assigningDriverOrder, setAssigningDriverOrder] = useState<Order | null>(null);
 
   const fetchLiveOrders = async () => {
     const supabase = createClient();
@@ -43,9 +45,15 @@ export default function LiveOrdersPage() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus, driverId?: string | null) => {
     setUpdatingOrder(orderId);
     const supabase = createClient();
+    
+    // If order is delivered and has a driver, release the driver
+    if (newStatus === 'delivered' && driverId) {
+      await supabase.from('drivers').update({ availability_status: 'Available' }).eq('id', driverId);
+    }
+    
     await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
     
     if (newStatus === 'cancelled' || newStatus === 'delivered') {
@@ -173,14 +181,14 @@ export default function LiveOrdersPage() {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
           {isPickup ? (
-            <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
+            <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
               {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Check className="h-4 w-4 shrink-0" />}
               Mark Picked Up
             </button>
           ) : (
-            <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'out_for_delivery')} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
+            <button disabled={updatingOrder === order.id} onClick={() => setAssigningDriverOrder(order)} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
               {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Truck className="h-4 w-4 shrink-0" />}
-              Send Out for Delivery
+              Assign Driver
             </button>
           )}
         </div>
@@ -190,7 +198,7 @@ export default function LiveOrdersPage() {
     if (order.status === 'out_for_delivery') {
       return (
         <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
-          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered')} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-70">
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-70">
             {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
             Mark Delivered
           </button>
@@ -281,6 +289,17 @@ export default function LiveOrdersPage() {
             ))}
           </AnimatePresence>
         </div>
+      )}
+
+      {assigningDriverOrder && (
+        <DriverAssignmentModal 
+          order={assigningDriverOrder} 
+          onClose={() => setAssigningDriverOrder(null)} 
+          onAssigned={() => {
+            setAssigningDriverOrder(null);
+            fetchLiveOrders();
+          }} 
+        />
       )}
     </div>
   );

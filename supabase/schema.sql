@@ -225,3 +225,42 @@ INSERT INTO products (name, description, price, image_url, is_veg, is_available,
   ('Rasmalai', 'Soft paneer discs soaked in saffron-infused sweetened milk', 179, 'https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=400&h=300&fit=crop', true, true, (SELECT id FROM categories WHERE slug = 'desserts'), 2),
   ('Chocolate Brownie', 'Warm, fudgy chocolate brownie with vanilla ice cream', 199, 'https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=400&h=300&fit=crop', true, true, (SELECT id FROM categories WHERE slug = 'desserts'), 3),
   ('Kulfi', 'Traditional Indian ice cream with pistachios and saffron', 129, 'https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?w=400&h=300&fit=crop', true, true, (SELECT id FROM categories WHERE slug = 'desserts'), 4);
+
+-- =============================================
+-- DRIVERS TABLE & DELIVERY FEATURE
+-- =============================================
+
+CREATE TABLE IF NOT EXISTS drivers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  mobile_number TEXT NOT NULL,
+  vehicle_number TEXT NOT NULL,
+  photo_url TEXT NOT NULL,
+  availability_status TEXT DEFAULT 'Available' CHECK (availability_status IN ('Available', 'Assigned')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE drivers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public can view drivers" ON drivers FOR SELECT USING (true);
+CREATE POLICY "Authenticated can manage drivers" ON drivers FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Add driver tracking to orders
+ALTER TABLE orders 
+ADD COLUMN IF NOT EXISTS driver_id UUID REFERENCES drivers(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS driver_name TEXT,
+ADD COLUMN IF NOT EXISTS driver_mobile_number TEXT,
+ADD COLUMN IF NOT EXISTS driver_vehicle_number TEXT,
+ADD COLUMN IF NOT EXISTS driver_photo_url TEXT,
+ADD COLUMN IF NOT EXISTS driver_assigned_at TIMESTAMPTZ;
+
+-- Enable Realtime for drivers
+ALTER PUBLICATION supabase_realtime ADD TABLE drivers;
+
+-- Driver Images Bucket
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('driver-images', 'driver-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Public can view driver images" ON storage.objects FOR SELECT USING (bucket_id = 'driver-images');
+CREATE POLICY "Authenticated can upload driver images" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'driver-images');
