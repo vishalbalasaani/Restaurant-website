@@ -41,7 +41,7 @@ export function useSettings() {
         { event: 'UPDATE', schema: 'public', table: 'restaurant_settings' },
         (payload: any) => {
           if (payload.new) {
-            setSettings(payload.new);
+            setSettings((prev) => ({ ...prev, ...payload.new }));
           }
         }
       )
