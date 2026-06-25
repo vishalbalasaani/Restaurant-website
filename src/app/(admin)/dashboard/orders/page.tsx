@@ -358,6 +358,19 @@ export default function OrdersPage() {
                   {selectedOrder.order_notes && <p className="mt-2 text-xs italic text-text-muted">Note: {selectedOrder.order_notes}</p>}
                 </div>
 
+                {selectedOrder.driver_id && (
+                  <div className="rounded-xl bg-background p-4">
+                    <h4 className="mb-2 text-xs font-semibold uppercase text-text-muted">Delivery Partner</h4>
+                    <p className="text-sm font-medium text-text">{selectedOrder.driver_name}</p>
+                    <p className="text-sm text-text-light">{selectedOrder.driver_mobile_number}</p>
+                    {selectedOrder.driver_vehicle_number && (
+                      <span className="inline-block mt-2 rounded bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent border border-accent/20">
+                        {selectedOrder.driver_vehicle_number}
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 {!modalLoading && orderItems.length > 0 && (
                   <div className="rounded-xl bg-background p-4">
                     <h4 className="mb-3 text-xs font-semibold uppercase text-text-muted">Items</h4>

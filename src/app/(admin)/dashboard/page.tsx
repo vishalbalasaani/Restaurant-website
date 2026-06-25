@@ -238,6 +238,7 @@ export default function DashboardOverview() {
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Order ID</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Customer</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Delivery</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Date</th>
                 </tr>
@@ -254,6 +255,16 @@ export default function DashboardOverview() {
                     </td>
                     <td className="px-6 py-4 font-heading text-sm font-semibold text-primary">
                       {formatPrice(order.total_amount)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {order.driver_id ? (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-bold text-text truncate max-w-[120px]">{order.driver_name}</span>
+                          <span className="text-xs text-text-muted">{order.driver_mobile_number}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs font-medium text-text-light italic">Not Assigned</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
