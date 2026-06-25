@@ -7,6 +7,31 @@ import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
 import { getEffectiveRestaurantStatus } from '@/lib/utils';
 
+function getNextDateForTime(timeStr: string, isCloseTime = false, openTimeStr = '11:00') {
+  if (!timeStr) return '';
+  const now = new Date();
+  const [h, m] = timeStr.split(':').map(Number);
+  const [openH, openM] = openTimeStr.split(':').map(Number);
+  
+  const d = new Date(now);
+  d.setHours(h, m, 0, 0);
+  
+  if (isCloseTime) {
+    if (h < openH || (h === openH && m < openM)) {
+      d.setDate(d.getDate() + 1);
+    }
+  }
+  
+  // Format to YYYY-MM-DDThh:mm
+  const year = d.getFullYear();
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const day = d.getDate().toString().padStart(2, '0');
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Partial<RestaurantSettings>>({
     business_name: '',
@@ -227,11 +252,37 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="settingsOpeningTime" className="mb-1.5 block text-sm font-medium text-text">Opening Time</label>
-            <input id="settingsOpeningTime" type="time" value={settings.opening_time || '11:00'} onChange={(e) => handleChange('opening_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
+            <input 
+              id="settingsOpeningTime" 
+              type="datetime-local" 
+              step="1800"
+              min={getNextDateForTime(`${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}`)}
+              value={getNextDateForTime(settings.opening_time || '11:00')} 
+              onChange={(e) => {
+                const val = e.target.value;
+                if (!val) return;
+                const timeStr = val.split('T')[1].substring(0, 5);
+                handleChange('opening_time', timeStr);
+              }} 
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
+            />
           </div>
           <div>
             <label htmlFor="settingsClosingTime" className="mb-1.5 block text-sm font-medium text-text">Closing Time</label>
-            <input id="settingsClosingTime" type="time" value={settings.closing_time || '23:00'} onChange={(e) => handleChange('closing_time', e.target.value)} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" />
+            <input 
+              id="settingsClosingTime" 
+              type="datetime-local" 
+              step="1800"
+              min={getNextDateForTime(`${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}`)}
+              value={getNextDateForTime(settings.closing_time || '23:00', true, settings.opening_time)} 
+              onChange={(e) => {
+                const val = e.target.value;
+                if (!val) return;
+                const timeStr = val.split('T')[1].substring(0, 5);
+                handleChange('closing_time', timeStr);
+              }} 
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
+            />
           </div>
         </div>
       </motion.div>
