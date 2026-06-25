@@ -6,8 +6,10 @@ import { Calendar as CalendarIcon, Clock, Users, User, Phone, Mail, FileText, Ch
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantTable, TableReservation, RestaurantSettings } from '@/lib/types';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ReserveTablePage() {
+  const router = useRouter();
   const [globalSettings, setGlobalSettings] = useState<Partial<RestaurantSettings> | null>(null);
   
   // Step 1: Selection
@@ -226,7 +228,8 @@ export default function ReserveTablePage() {
       setReservationId(insertedId);
       setReservationStatus('reserved'); // 'reserved' implies pending approval in customer context
     } catch (err: any) {
-      setError(err.message || 'This table has just been reserved. Please select another available table.');
+      console.error('Reservation error:', err);
+      setError(`Failed to book: ${err.message || JSON.stringify(err)}. Please try again.`);
       searchTables();
       setSelectedTable(null);
     } finally {
