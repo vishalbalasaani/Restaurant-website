@@ -96,8 +96,8 @@ export interface RestaurantSettings {
   whatsapp: string;
   instagram: string;
   address: string;
-  opening_time: string;
-  closing_time: string;
+  opening_time: string | null;
+  closing_time: string | null;
   kitchen_open: boolean;
   reservations_open: boolean;
   upi_id: string;

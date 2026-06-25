@@ -7,30 +7,15 @@ import { createClient } from '@/lib/supabase/client';
 import type { RestaurantSettings } from '@/lib/types';
 import { getEffectiveRestaurantStatus } from '@/lib/utils';
 
-function getNextDateForTime(timeStr: string, isCloseTime = false, openTimeStr = '11:00') {
-  if (!timeStr) return '';
-  const now = new Date();
-  const [h, m] = timeStr.split(':').map(Number);
-  const [openH, openM] = openTimeStr.split(':').map(Number);
-  
-  const d = new Date(now);
-  d.setHours(h, m, 0, 0);
-  
-  if (isCloseTime) {
-    if (h < openH || (h === openH && m < openM)) {
-      d.setDate(d.getDate() + 1);
-    }
-  }
-  
-  // Format to YYYY-MM-DDThh:mm
-  const year = d.getFullYear();
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');
-  const day = d.getDate().toString().padStart(2, '0');
-  const hours = d.getHours().toString().padStart(2, '0');
-  const minutes = d.getMinutes().toString().padStart(2, '0');
-  
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
+const TIME_SLOTS = Array.from({ length: 48 }).map((_, i) => {
+  const h = Math.floor(i / 2);
+  const m = i % 2 === 0 ? '00' : '30';
+  const val = `${h.toString().padStart(2, '0')}:${m}`;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const displayH = h % 12 || 12;
+  const label = `${displayH.toString().padStart(2, '0')}:${m} ${ampm}`;
+  return { val, label };
+});
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Partial<RestaurantSettings>>({
@@ -39,8 +24,8 @@ export default function SettingsPage() {
     whatsapp: '',
     instagram: '',
     address: '',
-    opening_time: '11:00',
-    closing_time: '23:00',
+    opening_time: new Date().toISOString(),
+    closing_time: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
     kitchen_open: true,
     reservations_open: true,
     upi_id: '',
@@ -251,38 +236,81 @@ export default function SettingsPage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="settingsOpeningTime" className="mb-1.5 block text-sm font-medium text-text">Opening Time</label>
-            <input 
-              id="settingsOpeningTime" 
-              type="datetime-local" 
-              step="1800"
-              min={getNextDateForTime(`${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}`)}
-              value={getNextDateForTime(settings.opening_time || '11:00')} 
-              onChange={(e) => {
-                const val = e.target.value;
-                if (!val) return;
-                const timeStr = val.split('T')[1].substring(0, 5);
-                handleChange('opening_time', timeStr);
-              }} 
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
-            />
+            <label className="mb-1.5 block text-sm font-medium text-text">Opening Time</label>
+            <div className="flex gap-2">
+              <input 
+                type="date" 
+                value={settings.opening_time ? settings.opening_time.split('T')[0] : ''}
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  const currentIso = settings.opening_time || new Date().toISOString();
+                  const [_, timeStr] = currentIso.split('T');
+                  // We store in local time ISO format to preserve the user's intent
+                  handleChange('opening_time', `${newDate}T${timeStr}`);
+                }}
+                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
+              />
+              <select 
+                value={settings.opening_time ? settings.opening_time.split('T')[1].substring(0, 5) : '11:00'}
+                onChange={(e) => {
+                  const newTime = e.target.value;
+                  const currentIso = settings.opening_time || new Date().toISOString();
+                  const [dateStr, _] = currentIso.split('T');
+                  handleChange('opening_time', `${dateStr}T${newTime}:00`);
+                }}
+                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
+              >
+                {TIME_SLOTS.map(({ val, label }) => {
+                  // Filter out past times if it's today
+                  const now = new Date();
+                  const isToday = settings.opening_time && settings.opening_time.split('T')[0] === now.toISOString().split('T')[0];
+                  const currentH = now.getHours();
+                  const currentM = now.getMinutes();
+                  const [slotH, slotM] = val.split(':').map(Number);
+                  const isPast = isToday && (slotH < currentH || (slotH === currentH && slotM < currentM));
+                  if (isPast) return null;
+                  return <option key={val} value={val}>{label}</option>;
+                })}
+              </select>
+            </div>
           </div>
           <div>
-            <label htmlFor="settingsClosingTime" className="mb-1.5 block text-sm font-medium text-text">Closing Time</label>
-            <input 
-              id="settingsClosingTime" 
-              type="datetime-local" 
-              step="1800"
-              min={getNextDateForTime(`${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}`)}
-              value={getNextDateForTime(settings.closing_time || '23:00', true, settings.opening_time)} 
-              onChange={(e) => {
-                const val = e.target.value;
-                if (!val) return;
-                const timeStr = val.split('T')[1].substring(0, 5);
-                handleChange('closing_time', timeStr);
-              }} 
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
-            />
+            <label className="mb-1.5 block text-sm font-medium text-text">Closing Time</label>
+            <div className="flex gap-2">
+              <input 
+                type="date" 
+                value={settings.closing_time ? settings.closing_time.split('T')[0] : ''}
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  const currentIso = settings.closing_time || new Date().toISOString();
+                  const [_, timeStr] = currentIso.split('T');
+                  handleChange('closing_time', `${newDate}T${timeStr}`);
+                }}
+                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
+              />
+              <select 
+                value={settings.closing_time ? settings.closing_time.split('T')[1].substring(0, 5) : '23:00'}
+                onChange={(e) => {
+                  const newTime = e.target.value;
+                  const currentIso = settings.closing_time || new Date().toISOString();
+                  const [dateStr, _] = currentIso.split('T');
+                  handleChange('closing_time', `${dateStr}T${newTime}:00`);
+                }}
+                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
+              >
+                {TIME_SLOTS.map(({ val, label }) => {
+                  // Filter out past times if it's today
+                  const now = new Date();
+                  const isToday = settings.closing_time && settings.closing_time.split('T')[0] === now.toISOString().split('T')[0];
+                  const currentH = now.getHours();
+                  const currentM = now.getMinutes();
+                  const [slotH, slotM] = val.split(':').map(Number);
+                  const isPast = isToday && (slotH < currentH || (slotH === currentH && slotM < currentM));
+                  if (isPast) return null;
+                  return <option key={val} value={val}>{label}</option>;
+                })}
+              </select>
+            </div>
           </div>
         </div>
       </motion.div>

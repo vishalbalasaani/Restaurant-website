@@ -107,76 +107,41 @@ export function getStatusStep(status: string): number {
   return steps[status] ?? -1;
 }
 
-export function getEffectiveRestaurantStatus(settings: any | null) {
-  if (!settings) return { 
-    isOpen: false, 
-    isKitchenOpen: false,
-    isReservationsOpen: false,
-    isTemporarilyClosed: false,
-    isReservationsTemporarilyClosed: false,
-    isClosingSoon: false, 
-    closingTime: null, 
-    isOpeningSoon: false, 
-    openingTime: null 
-  };
+export function getEffectiveRestaurantStatus(settings: any) {
+  if (!settings) {
+    return {
+      isKitchenOpen: false,
+      isReservationsOpen: false,
+      isEffectivelyOpen: false,
+      isTemporarilyClosed: false,
+      isReservationsTemporarilyClosed: false,
+      isClosingSoon: false,
+      isOpeningSoon: false,
+      closingTimeObj: null,
+      openingTimeObj: null,
+    };
+  }
 
   const now = new Date();
-  const currentHours = now.getHours();
-  const currentMinutes = now.getMinutes();
   
-  const [openHourStr, openMinStr] = (settings.opening_time || '11:00').split(':');
-  const [closeHourStr, closeMinStr] = (settings.closing_time || '23:00').split(':');
+  // Safely parse timestamps, default to closed if invalid
+  const openDate = settings.opening_time ? new Date(settings.opening_time) : new Date(0);
+  const closeDate = settings.closing_time ? new Date(settings.closing_time) : new Date(0);
   
-  const openHour = parseInt(openHourStr, 10);
-  const openMin = parseInt(openMinStr, 10);
-  const closeHour = parseInt(closeHourStr, 10);
-  const closeMin = parseInt(closeMinStr, 10);
-  
-  const currentTotalMinutes = currentHours * 60 + currentMinutes;
-  const openTotalMinutes = openHour * 60 + openMin;
-  const closeTotalMinutes = closeHour * 60 + closeMin;
-  
-  // Are we inside standard physical operating hours?
-  let isWithinPhysicalHours = false;
-  if (closeTotalMinutes < openTotalMinutes) {
-    isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes || currentTotalMinutes < closeTotalMinutes;
-  } else {
-    isWithinPhysicalHours = currentTotalMinutes >= openTotalMinutes && currentTotalMinutes < closeTotalMinutes;
-  }
-  
-  // Calculate the most recent boundary (open or close) that has passed
-  let mostRecentBoundary = new Date(0);
-  const boundaries: Date[] = [];
-  for (let offset = -2; offset <= 1; offset++) {
-     const o = new Date();
-     o.setDate(o.getDate() + offset);
-     o.setHours(openHour, openMin, 0, 0);
-     boundaries.push(o);
-
-     const c = new Date();
-     c.setDate(c.getDate() + offset);
-     c.setHours(closeHour, closeMin, 0, 0);
-     boundaries.push(c);
-  }
-
-  for (const b of boundaries) {
-     if (b <= now && b > mostRecentBoundary) {
-        mostRecentBoundary = b;
-     }
-  }
-
   const lastUpdatedAt = new Date(settings.updated_at || new Date(0));
-  
+
+  // Determine if we are within the physical shift
+  const isWithinPhysicalHours = now >= openDate && now < closeDate;
+
   let isKitchenOpen = isWithinPhysicalHours;
   let isReservationsOpen = isWithinPhysicalHours;
 
-  if (lastUpdatedAt >= mostRecentBoundary) {
-      // User manually toggled after the last scheduled automation event
-      isKitchenOpen = settings.kitchen_open;
-      isReservationsOpen = settings.reservations_open;
+  // Manual Override Logic:
+  // If the user manually toggled the button AFTER the current shift started
+  if (lastUpdatedAt > openDate) {
+    isKitchenOpen = settings.kitchen_open;
+    isReservationsOpen = settings.reservations_open;
   }
-
-  let isEffectivelyOpen = isKitchenOpen; // keep for backward compatibility with other files
 
   let isClosingSoon = false;
   let closingTimeObj = null;
@@ -184,52 +149,35 @@ export function getEffectiveRestaurantStatus(settings: any | null) {
   let openingTimeObj = null;
 
   if (isWithinPhysicalHours) {
-    let diffMinutes = 0;
-    if (closeTotalMinutes < openTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
-       diffMinutes = (24 * 60 - currentTotalMinutes) + closeTotalMinutes;
-    } else {
-       diffMinutes = closeTotalMinutes - currentTotalMinutes;
-    }
-    
+    const diffMinutes = (closeDate.getTime() - now.getTime()) / (1000 * 60);
     if (diffMinutes <= 60 && diffMinutes > 0) {
       isClosingSoon = true;
-      closingTimeObj = new Date();
-      if (closeTotalMinutes < openTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
-          closingTimeObj.setDate(closingTimeObj.getDate() + 1);
-      }
-      closingTimeObj.setHours(closeHour, closeMin, 0, 0);
+      closingTimeObj = closeDate;
     }
   } else {
-     let diffMinutesToOpen = 0;
-     if (currentTotalMinutes >= closeTotalMinutes && currentTotalMinutes >= openTotalMinutes) {
-        diffMinutesToOpen = (24 * 60 - currentTotalMinutes) + openTotalMinutes;
-     } else if (currentTotalMinutes < openTotalMinutes) {
-        diffMinutesToOpen = openTotalMinutes - currentTotalMinutes;
-     }
-     
-     if (diffMinutesToOpen <= 60 && diffMinutesToOpen > 0) {
+    // If we are closed, check if we are opening soon (within the next 60 mins)
+    if (openDate > now) {
+      const diffMinutesToOpen = (openDate.getTime() - now.getTime()) / (1000 * 60);
+      if (diffMinutesToOpen <= 60 && diffMinutesToOpen > 0) {
         isOpeningSoon = true;
-        openingTimeObj = new Date();
-        if (currentTotalMinutes >= openTotalMinutes) {
-            openingTimeObj.setDate(openingTimeObj.getDate() + 1);
-        }
-        openingTimeObj.setHours(openHour, openMin, 0, 0);
-     }
+        openingTimeObj = openDate;
+      }
+    }
   }
 
   const isTemporarilyClosed = isWithinPhysicalHours && !isKitchenOpen;
   const isReservationsTemporarilyClosed = isWithinPhysicalHours && !isReservationsOpen;
 
-  return { 
-    isOpen: isEffectivelyOpen, 
+  return {
     isKitchenOpen,
     isReservationsOpen,
+    isEffectivelyOpen: isKitchenOpen,
     isTemporarilyClosed,
     isReservationsTemporarilyClosed,
-    isClosingSoon, 
-    closingTime: closingTimeObj, 
-    isOpeningSoon, 
-    openingTime: openingTimeObj 
+    isClosingSoon,
+    isOpeningSoon,
+    closingTimeObj,
+    openingTimeObj,
   };
 }
 
