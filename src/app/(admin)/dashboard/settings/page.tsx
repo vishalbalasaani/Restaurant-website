@@ -240,23 +240,40 @@ export default function SettingsPage() {
             <div className="flex gap-2">
               <input 
                 type="date" 
-                value={settings.opening_time ? settings.opening_time.split('T')[0] : ''}
+                value={(() => {
+                  if (!settings.opening_time) return '';
+                  const d = new Date(settings.opening_time);
+                  if (isNaN(d.getTime())) return settings.opening_time.split('T')[0];
+                  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                })()}
                 onChange={(e) => {
                   const newDate = e.target.value;
-                  const currentIso = settings.opening_time || new Date().toISOString();
-                  const [_, timeStr] = currentIso.split('T');
-                  // We store in local time ISO format to preserve the user's intent
-                  handleChange('opening_time', `${newDate}T${timeStr}`);
+                  if (!newDate) return;
+                  let d = new Date(settings.opening_time || Date.now());
+                  if (isNaN(d.getTime())) d = new Date();
+                  const localH = String(d.getHours()).padStart(2, '0');
+                  const localM = String(d.getMinutes()).padStart(2, '0');
+                  const newD = new Date(`${newDate}T${localH}:${localM}:00`);
+                  handleChange('opening_time', newD.toISOString());
                 }}
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
               />
               <select 
-                value={settings.opening_time ? settings.opening_time.split('T')[1].substring(0, 5) : '11:00'}
+                value={(() => {
+                  if (!settings.opening_time) return '11:00';
+                  const d = new Date(settings.opening_time);
+                  if (isNaN(d.getTime())) return settings.opening_time.split('T')[1]?.substring(0, 5) || '11:00';
+                  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                })()}
                 onChange={(e) => {
                   const newTime = e.target.value;
-                  const currentIso = settings.opening_time || new Date().toISOString();
-                  const [dateStr, _] = currentIso.split('T');
-                  handleChange('opening_time', `${dateStr}T${newTime}:00`);
+                  let d = new Date(settings.opening_time || Date.now());
+                  if (isNaN(d.getTime())) d = new Date();
+                  const localY = d.getFullYear();
+                  const localMo = String(d.getMonth() + 1).padStart(2, '0');
+                  const localD = String(d.getDate()).padStart(2, '0');
+                  const newD = new Date(`${localY}-${localMo}-${localD}T${newTime}:00`);
+                  handleChange('opening_time', newD.toISOString());
                 }}
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
               >
@@ -271,34 +288,44 @@ export default function SettingsPage() {
             <div className="flex gap-2">
               <input 
                 type="date" 
-                value={settings.closing_time ? settings.closing_time.split('T')[0] : ''}
+                value={(() => {
+                  if (!settings.closing_time) return '';
+                  const d = new Date(settings.closing_time);
+                  if (isNaN(d.getTime())) return settings.closing_time.split('T')[0];
+                  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                })()}
                 onChange={(e) => {
                   const newDate = e.target.value;
-                  const currentIso = settings.closing_time || new Date().toISOString();
-                  const [_, timeStr] = currentIso.split('T');
-                  handleChange('closing_time', `${newDate}T${timeStr}`);
+                  if (!newDate) return;
+                  let d = new Date(settings.closing_time || Date.now());
+                  if (isNaN(d.getTime())) d = new Date();
+                  const localH = String(d.getHours()).padStart(2, '0');
+                  const localM = String(d.getMinutes()).padStart(2, '0');
+                  const newD = new Date(`${newDate}T${localH}:${localM}:00`);
+                  handleChange('closing_time', newD.toISOString());
                 }}
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent" 
               />
               <select 
-                value={settings.closing_time ? settings.closing_time.split('T')[1].substring(0, 5) : '23:00'}
+                value={(() => {
+                  if (!settings.closing_time) return '23:00';
+                  const d = new Date(settings.closing_time);
+                  if (isNaN(d.getTime())) return settings.closing_time.split('T')[1]?.substring(0, 5) || '23:00';
+                  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                })()}
                 onChange={(e) => {
                   const newTime = e.target.value;
-                  const currentIso = settings.closing_time || new Date().toISOString();
-                  const [dateStr, _] = currentIso.split('T');
-                  handleChange('closing_time', `${dateStr}T${newTime}:00`);
+                  let d = new Date(settings.closing_time || Date.now());
+                  if (isNaN(d.getTime())) d = new Date();
+                  const localY = d.getFullYear();
+                  const localMo = String(d.getMonth() + 1).padStart(2, '0');
+                  const localD = String(d.getDate()).padStart(2, '0');
+                  const newD = new Date(`${localY}-${localMo}-${localD}T${newTime}:00`);
+                  handleChange('closing_time', newD.toISOString());
                 }}
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
               >
                 {TIME_SLOTS.map(({ val, label }) => {
-                  // Filter out past times if it's today
-                  const now = new Date();
-                  const isToday = settings.closing_time && settings.closing_time.split('T')[0] === now.toISOString().split('T')[0];
-                  const currentH = now.getHours();
-                  const currentM = now.getMinutes();
-                  const [slotH, slotM] = val.split(':').map(Number);
-                  const isPast = isToday && (slotH < currentH || (slotH === currentH && slotM < currentM));
-                  if (isPast) return null;
                   return <option key={val} value={val}>{label}</option>;
                 })}
               </select>
