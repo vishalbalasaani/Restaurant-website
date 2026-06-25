@@ -7,6 +7,7 @@ import { Menu, X, ShoppingBag, ChefHat } from 'lucide-react';
 import { useCartStore } from '@/lib/store/cart-store';
 import { NAV_LINKS } from '@/lib/constants';
 import CartSheet from './cart-sheet';
+import CountdownBanner from './countdown-banner';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,6 +33,7 @@ export default function Navbar() {
             : 'bg-primary/50 backdrop-blur-sm border-white/5'
         }`}
       >
+        <CountdownBanner />
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
           {/* Logo */}
           <Link href="/home" className="flex items-center gap-2">

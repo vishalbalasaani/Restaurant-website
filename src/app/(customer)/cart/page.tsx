@@ -1,16 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag, Send } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag, Send, XCircle } from 'lucide-react';
 import { useCartStore } from '@/lib/store/cart-store';
-import { formatPrice, generateOrderNumber, getWhatsAppLink, formatOrderForWhatsApp } from '@/lib/utils';
+import { formatPrice, generateOrderNumber, getWhatsAppLink, formatOrderForWhatsApp, getEffectiveRestaurantStatus } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
-import { useKitchenStatus } from '@/lib/hooks/use-kitchen-status';
-import type { CheckoutFormData } from '@/lib/types';
+import type { CheckoutFormData, RestaurantSettings } from '@/lib/types';
 
 export default function CartPage() {
   const router = useRouter();
@@ -19,6 +18,7 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const [globalSettings, setGlobalSettings] = useState<RestaurantSettings | null>(null);
   const [formData, setFormData] = useState<CheckoutFormData>({
     name: '',
     phone: '',
@@ -27,7 +27,15 @@ export default function CartPage() {
     notes: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<CheckoutFormData>>({});
-  const { kitchenOpen } = useKitchenStatus();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('restaurant_settings').select('*').single();
+      if (data) setGlobalSettings(data as RestaurantSettings);
+    };
+    fetchSettings();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -115,9 +123,6 @@ export default function CartPage() {
       
       if (itemsError) {
         console.error('Failed to insert order items:', itemsError);
-        // We do not throw here so the user isn't stuck, but we log it.
-        // If this happens, the order is created but items are missing.
-        // But with the validIds check above, FK violations should be prevented.
       }
 
       // Send to WhatsApp
@@ -129,20 +134,13 @@ export default function CartPage() {
         total_amount: total,
       });
 
-      // Get restaurant WhatsApp number
-      const { data: settings } = await supabase
-        .from('restaurant_settings')
-        .select('whatsapp')
-        .single();
-
-      const whatsappNumber = settings?.whatsapp || '919876543210';
+      const whatsappNumber = globalSettings?.whatsapp || '919876543210';
       const waLink = getWhatsAppLink(whatsappNumber, whatsappMessage);
       window.open(waLink, '_blank');
 
       clearCart();
       router.push(`/track?order=${ordNum}`);
     } catch {
-      // Fallback: still show success with local order number
       clearCart();
       router.push(`/track?order=${ordNum}`);
     } finally {
@@ -193,6 +191,24 @@ export default function CartPage() {
     );
   }
 
+  const { isOpen } = getEffectiveRestaurantStatus(globalSettings as any);
+  if (globalSettings && !isOpen) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center p-4 text-center">
+        <div className="mb-4 rounded-full bg-red-100 p-4">
+          <XCircle className="h-10 w-10 text-red-600" />
+        </div>
+        <h2 className="font-heading text-2xl font-bold text-text mb-2">Kitchen Closed</h2>
+        <p className="text-text-light max-w-md mb-6">
+          Our kitchen is currently closed. We are not accepting new orders at this time.
+        </p>
+        <Link href="/menu" className="rounded-xl bg-primary px-6 py-3 font-bold text-white transition-colors hover:bg-primary-light">
+          Browse Menu Anyway
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="mx-auto max-w-4xl px-4 md:px-8">
@@ -203,13 +219,6 @@ export default function CartPage() {
           </Link>
           <h1 className="font-heading text-3xl font-bold text-primary">Checkout</h1>
         </div>
-
-        {!kitchenOpen && items.length > 0 && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-center">
-            <h3 className="font-heading text-lg font-semibold text-red-700">Kitchen is Closed</h3>
-            <p className="text-sm text-red-600">We are currently not accepting orders. Please check back later.</p>
-          </div>
-        )}
 
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">

@@ -107,6 +107,59 @@ export function getStatusStep(status: string): number {
   return steps[status] ?? -1;
 }
 
+export function getEffectiveRestaurantStatus(settings: { is_open: boolean, updated_at: string } | null) {
+  if (!settings) return { isOpen: false, isClosingSoon: false, closingTime: null };
+
+  const now = new Date();
+  const currentHours = now.getHours();
+  
+  // Operating hours: 11:00 AM to 11:00 PM (23:00)
+  const openHour = 11;
+  const closeHour = 23;
+  
+  // Are we inside standard physical operating hours?
+  const isWithinPhysicalHours = currentHours >= openHour && currentHours < closeHour;
+  
+  let isEffectivelyOpen = isWithinPhysicalHours;
+
+  if (isWithinPhysicalHours && !settings.is_open) {
+    // Toggle is manually OFF. Check if it was turned off BEFORE the most recent 11:00 AM boundary.
+    const lastUpdatedAt = new Date(settings.updated_at);
+    const mostRecentOpenBoundary = new Date();
+    mostRecentOpenBoundary.setHours(openHour, 0, 0, 0);
+    
+    // If it's before 11am today, the most recent boundary was yesterday
+    if (currentHours < openHour) {
+      mostRecentOpenBoundary.setDate(mostRecentOpenBoundary.getDate() - 1);
+    }
+    
+    if (lastUpdatedAt < mostRecentOpenBoundary) {
+      // Auto-turn on! (The toggle is stale from yesterday)
+      isEffectivelyOpen = true;
+    } else {
+      // Respect manual off from today
+      isEffectivelyOpen = false;
+    }
+  }
+
+  // If outside operating hours, it is unconditionally closed
+  if (!isWithinPhysicalHours) {
+    isEffectivelyOpen = false;
+  }
+
+  let isClosingSoon = false;
+  let closingTime = null;
+
+  // Countdown starts 1 hour before closeHour (i.e. >= 22:00)
+  if (isEffectivelyOpen && currentHours >= closeHour - 1) {
+    isClosingSoon = true;
+    closingTime = new Date();
+    closingTime.setHours(closeHour, 0, 0, 0);
+  }
+
+  return { isOpen: isEffectivelyOpen, isClosingSoon, closingTime };
+}
+
 export function playBuzzer() {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

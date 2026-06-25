@@ -5,8 +5,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, Clock, Users, User, Phone, Mail, FileText, CheckCircle2, ChevronRight, Loader2, AlertCircle, XCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { RestaurantTable, TableReservation, RestaurantSettings } from '@/lib/types';
+import { getEffectiveRestaurantStatus } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+function format12Hour(time24: string) {
+  const [h, m] = time24.split(':');
+  const hours = parseInt(h, 10);
+  const suffix = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${m} ${suffix}`;
+}
 
 export default function ReserveTablePage() {
   const router = useRouter();
@@ -264,19 +273,17 @@ export default function ReserveTablePage() {
     setStep(3);
   };
 
-  if (globalSettings && globalSettings.reservations_open === false) {
+  const { isOpen } = getEffectiveRestaurantStatus(globalSettings as any);
+  if (!isOpen) {
     return (
-      <div className="min-h-[100dvh] pt-20 flex items-center justify-center px-4 bg-background">
-        <div className="max-w-md w-full bg-card rounded-3xl p-8 border border-border text-center shadow-xl">
-          <div className="mx-auto w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6">
-            <XCircle className="w-10 h-10" />
-          </div>
-          <h2 className="font-heading text-2xl font-bold text-text mb-2">Reservations Unavailable</h2>
-          <p className="text-text-light mb-6">Table reservations are currently turned off for today. Please try again tomorrow or contact us directly.</p>
-          <Link href="/menu" className="block w-full py-3 rounded-xl bg-primary text-white font-bold transition-colors hover:bg-primary-light">
-            Explore Our Menu
-          </Link>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center p-4 text-center">
+        <div className="mb-4 rounded-full bg-red-100 p-4">
+          <XCircle className="h-10 w-10 text-red-600" />
         </div>
+        <h2 className="font-heading text-2xl font-bold text-text mb-2">Reservations Closed</h2>
+        <p className="text-text-light max-w-md">
+          We are currently not accepting new table reservations. Please check back later!
+        </p>
       </div>
     );
   }
@@ -413,10 +420,18 @@ export default function ReserveTablePage() {
                 <label className="text-sm font-bold text-text flex items-center gap-2">
                   <Clock className="w-4 h-4 text-primary" /> Time
                 </label>
-                <div className="grid grid-cols-3 gap-2 overflow-y-auto pb-24 scrollbar-hide">
-                  {timeSlots.map(t => (
-                    <button key={t} onClick={() => setTime(t)} className={`py-3 rounded-xl border-2 text-sm font-bold transition-all ${time === t ? 'border-primary bg-primary text-white shadow-md shadow-primary/20' : 'border-border bg-card text-text'}`}>
-                      {t}
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pb-24">
+                  {timeSlots.map(slot => (
+                    <button
+                      key={slot}
+                      onClick={() => setTime(slot)}
+                      className={`rounded-xl border p-3 text-center transition-all ${
+                        time === slot
+                          ? 'border-accent bg-accent/10 font-bold text-accent'
+                          : 'border-border bg-card font-medium text-text-light hover:border-accent hover:text-accent'
+                      }`}
+                    >
+                      {format12Hour(slot)}
                     </button>
                   ))}
                 </div>

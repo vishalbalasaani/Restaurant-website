@@ -3,10 +3,14 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { UtensilsCrossed, ShieldCheck, ChefHat, ArrowRight } from 'lucide-react';
+import CountdownBanner from '@/components/customer/countdown-banner';
 
 export default function StartPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-primary">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-primary">
+      <div className="absolute top-0 left-0 right-0 z-50">
+        <CountdownBanner />
+      </div>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div
