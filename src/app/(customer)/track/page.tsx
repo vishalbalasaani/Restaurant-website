@@ -21,62 +21,7 @@ const STATUS_STEPS = [
   { key: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500', ring: 'ring-red-100', text: 'text-red-600' }
 ];
 
-const DeliveryScootyAnimation = () => (
-  <svg viewBox="0 0 200 150" className="w-32 h-24 drop-shadow-md" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Orange Box */}
-    <rect x="35" y="55" width="35" height="35" rx="2" fill="#f97316" stroke="#ea580c" strokeWidth="1" />
-    
-    {/* Scooter Body */}
-    <path d="M 25 110 Q 25 120 40 120 L 125 120 Q 145 120 140 100 L 120 85 Q 110 80 100 95 L 45 95 Z" fill="#b91c1c" />
-    <path d="M 120 85 L 135 45 L 145 50 L 135 95 Z" fill="#991b1b" />
-    <path d="M 135 95 Q 155 100 160 115 L 140 110 Z" fill="#b91c1c" />
-    <path d="M 130 40 L 150 45 L 145 60 L 125 55 Z" fill="#b91c1c" />
-    <path d="M 150 45 Q 160 50 145 60" fill="#f1f5f9" /> 
-    <motion.path d="M 155 50 L 185 40 L 185 80 Z" fill="#fef08a" opacity="0.4" animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 1, repeat: Infinity }} />
-    
-    {/* Exhaust */}
-    <path d="M 20 105 Q 10 110 15 115 L 60 115" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
-    
-    {/* Wheels */}
-    <g>
-      <circle cx="60" cy="120" r="14" fill="#334155" />
-      <circle cx="60" cy="120" r="6" fill="#cbd5e1" />
-      <motion.g animate={{ rotate: 360 }} transition={{ duration: 0.4, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "60px 120px" }}>
-        <path d="M 60 106 L 60 134 M 46 120 L 74 120 M 50 110 L 70 130 M 50 130 L 70 110" stroke="#e2e8f0" strokeWidth="1.5" />
-      </motion.g>
-    </g>
-    <g>
-      <circle cx="135" cy="120" r="14" fill="#334155" />
-      <circle cx="135" cy="120" r="6" fill="#cbd5e1" />
-      <motion.g animate={{ rotate: 360 }} transition={{ duration: 0.4, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "135px 120px" }}>
-        <path d="M 135 106 L 135 134 M 121 120 L 149 120 M 125 110 L 145 130 M 125 130 L 145 110" stroke="#e2e8f0" strokeWidth="1.5" />
-      </motion.g>
-    </g>
 
-    {/* Seat */}
-    <path d="M 50 90 L 100 90 Q 110 90 100 100 L 45 100 Z" fill="#1e293b" />
-
-    {/* Person */}
-    <path d="M 80 50 Q 70 90 90 90 L 105 90 Q 110 70 100 50 Z" fill="#b91c1c" />
-    <path d="M 95 85 L 120 110 L 115 120" stroke="#475569" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    <path d="M 110 115 L 125 115" stroke="#ef4444" strokeWidth="6" strokeLinecap="round" fill="none" />
-    <path d="M 110 118 L 125 118" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" fill="none" />
-    
-    <circle cx="93" cy="33" r="12" fill="#fca5a5" />
-    <path d="M 103 33 L 107 35 L 103 37" fill="#fca5a5" />
-    <circle cx="99" cy="31" r="1.5" fill="#1e293b" />
-    <path d="M 99 39 Q 101 41 103 39" stroke="#1e293b" strokeWidth="1" fill="none" />
-    
-    <path d="M 79 33 A 16 16 0 0 1 107 29 L 103 17 A 20 20 0 0 0 79 33 Z" fill="#991b1b" />
-    <path d="M 79 33 A 15 15 0 0 1 107 33 L 107 35 L 79 35 Z" fill="#b91c1c" />
-    <path d="M 79 33 L 79 45 L 87 45 L 87 33 Z" fill="#b91c1c" />
-    <path d="M 87 40 L 93 45" stroke="#1e293b" strokeWidth="2" />
-    <path d="M 100 25 L 113 25" stroke="#b91c1c" strokeWidth="3" strokeLinecap="round" />
-    
-    <path d="M 95 55 L 120 60 L 130 45" stroke="#fca5a5" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    <path d="M 90 53 L 110 57" stroke="#b91c1c" strokeWidth="8" strokeLinecap="round" fill="none" />
-  </svg>
-);
 
 function TrackOrderContent() {
   const searchParams = useSearchParams();
@@ -555,47 +500,60 @@ function TrackOrderContent() {
                             <p className="text-white/80 font-medium text-sm">Your order is out for delivery.</p>
                           </div>
                         </div>
-                        <div className="relative w-full h-32 mt-6 rounded-xl overflow-hidden bg-gradient-to-b from-teal-300/80 to-teal-100/80 shadow-inner flex flex-col justify-end border border-white/20">
-                          {/* City Skyline */}
-                          <motion.div initial={{ x: 0 }} animate={{ x: "-50%" }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute bottom-11 flex items-end whitespace-nowrap opacity-50">
-                             <div className="w-16 h-16 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-12 h-24 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-20 h-12 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-14 h-20 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-24 h-14 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-16 h-16 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-12 h-24 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-20 h-12 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-14 h-20 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-24 h-14 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-16 h-16 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-12 h-24 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-20 h-12 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-14 h-20 bg-teal-600/40 mx-1 rounded-t-sm" />
-                             <div className="w-24 h-14 bg-teal-600/40 mx-1 rounded-t-sm" />
-                          </motion.div>
+                        {/* Real-time Map Tracking Interface */}
+                        <div className="relative w-full h-24 mt-6 rounded-xl overflow-hidden bg-[#e8eaed] border border-black/5 shadow-inner flex items-center px-4 sm:px-6">
+                          {/* Fake Map Streets Background */}
+                          <div className="absolute inset-0 opacity-[0.15]">
+                            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                              <defs>
+                                <pattern id="streets" width="60" height="60" patternUnits="userSpaceOnUse">
+                                  <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#000000" strokeWidth="3"/>
+                                  <path d="M 30 0 L 30 60 M 0 30 L 60 30" fill="none" stroke="#000000" strokeWidth="1"/>
+                                </pattern>
+                              </defs>
+                              <rect width="100%" height="100%" fill="url(#streets)" />
+                              <circle cx="20%" cy="30%" r="40" fill="#4ade80" opacity="0.3" />
+                              <circle cx="80%" cy="70%" r="50" fill="#60a5fa" opacity="0.2" />
+                            </svg>
+                          </div>
 
-                          {/* Grass */}
-                          <div className="w-full h-3 bg-lime-500 relative shrink-0 border-t border-lime-400 z-0" />
-
-                          {/* Road */}
-                          <div className="w-full h-8 bg-slate-700 relative shrink-0 border-t-2 border-slate-400 flex items-center z-0">
+                          {/* Route Track */}
+                          <div className="relative w-full h-1.5 bg-slate-300 rounded-full z-0 overflow-hidden">
                             <motion.div 
-                              initial={{ x: 0 }}
-                              animate={{ x: "-48px" }}
-                              transition={{ duration: 0.4, repeat: Infinity, ease: "linear" }}
-                              className="absolute left-0 right-[-48px] w-[calc(100%+48px)] h-[2px] border-t-[3px] border-dashed border-white" 
+                              initial={{ x: "-100%" }}
+                              animate={{ x: "0%" }}
+                              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                              className="absolute inset-0 bg-primary rounded-full"
                             />
                           </div>
+
+                          {/* Restaurant Point */}
+                          <div className="absolute left-4 sm:left-6 w-3 h-3 sm:w-4 sm:h-4 bg-white border-[3px] border-slate-400 rounded-full z-10 shadow-sm" />
                           
-                          {/* Scooty SVG moving smoothly */}
+                          {/* Destination Point */}
+                          <div className="absolute right-4 sm:right-6 flex flex-col items-center justify-center z-10">
+                            <motion.div animate={{ y: [0, -4, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+                              <MapPin className="w-6 h-6 sm:w-7 sm:h-7 text-red-500 fill-red-500/20 drop-shadow-md" />
+                            </motion.div>
+                          </div>
+
+                          {/* Moving Delivery Partner Icon */}
                           <motion.div
-                            initial={{ x: "-30%", y: 0 }}
-                            animate={{ x: "130%", y: [0, -1, 0, -1, 0] }}
-                            transition={{ x: { duration: 6, repeat: Infinity, ease: "linear" }, y: { duration: 0.3, repeat: Infinity, ease: "linear" } }}
-                            className="absolute bottom-2 z-10"
+                            initial={{ left: "1.5rem" }}
+                            animate={{ left: "calc(100% - 1.5rem)" }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 flex items-center justify-center"
                           >
-                             <DeliveryScootyAnimation />
+                            {/* Pulse ring */}
+                            <motion.div 
+                              animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} 
+                              transition={{ duration: 1.5, repeat: Infinity }} 
+                              className="absolute w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-full"
+                            />
+                            {/* Map Pin / Delivery Icon */}
+                            <div className="relative bg-white text-primary p-1.5 sm:p-2 rounded-full shadow-lg border-2 border-primary flex items-center justify-center">
+                              <Bike className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            </div>
                           </motion.div>
                         </div>
                       </div>
