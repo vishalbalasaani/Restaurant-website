@@ -216,7 +216,6 @@ export default function CartPage() {
                 <h3 className="font-heading font-semibold">Kitchen is currently closed</h3>
                 <p className="text-sm opacity-90">
                   We are not accepting orders right now.
-                  {openingTime && ` We will open again at ${formatTime(openingTime)}.`}
                 </p>
               </div>
             </div>

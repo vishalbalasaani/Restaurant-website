@@ -98,11 +98,6 @@ export default function MenuSection() {
         <div className="bg-red-50 py-3 text-center border-b border-red-100">
           <p className="text-red-600 font-medium text-sm">
             The kitchen is currently closed. We are not accepting orders right now.
-            {openingTime && (
-              <span className="ml-1 font-bold">
-                We will open again at {formatTime(openingTime)}.
-              </span>
-            )}
           </p>
         </div>
       )}
