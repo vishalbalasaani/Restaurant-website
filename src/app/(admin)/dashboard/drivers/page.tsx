@@ -209,21 +209,21 @@ export default function DriversPage() {
               className={`flex flex-col md:flex-row items-center justify-between overflow-hidden rounded-2xl border ${driver.is_active ? 'border-border' : 'border-border/50 opacity-75'} bg-card p-4 shadow-sm hover:shadow-md transition-all gap-4`}
             >
               {/* Driver Info */}
-              <div className="flex items-center gap-4 flex-1 min-w-0">
-                <div className={`relative h-16 w-16 shrink-0 rounded-full overflow-hidden border-2 shadow-sm ${driver.is_active ? 'border-border' : 'border-border/50 grayscale'}`}>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1 min-w-0">
+                <div className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-full overflow-hidden border-2 shadow-sm ${driver.is_active ? 'border-border' : 'border-border/50 grayscale'}`}>
                   <Image src={driver.photo_url} alt={driver.name} fill className="object-cover" />
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-heading text-lg font-bold text-text truncate">{driver.name}</h3>
+                <div className="flex flex-col min-w-0 w-full">
+                  <div className="flex flex-wrap items-center gap-2 mb-1 w-full">
+                    <h3 className="font-heading text-lg font-bold text-text truncate max-w-[150px] sm:max-w-[180px]">{driver.name}</h3>
                     {!driver.is_active ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200 whitespace-nowrap shrink-0">
                         Offline
                       </span>
                     ) : (() => {
                       const isReturning = driver.availability_status === 'Assigned' && driver.active_orders === 0;
                       return (
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shrink-0 ${
                           driver.availability_status === 'Available' 
                             ? 'bg-green-100 text-green-700 border border-green-200' 
                             : isReturning
@@ -236,10 +236,10 @@ export default function DriversPage() {
                       );
                     })()}
                   </div>
-                  <div className="flex items-center gap-3 text-sm font-medium text-text-light">
-                    <span>{driver.mobile_number}</span>
-                    <span className="h-1 w-1 rounded-full bg-border-light"></span>
-                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-bold border ${driver.is_active ? 'bg-accent/10 text-accent border-accent/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-text-light w-full">
+                    <span className="whitespace-nowrap">{driver.mobile_number}</span>
+                    <span className="hidden sm:inline h-1 w-1 rounded-full bg-border-light shrink-0"></span>
+                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-bold border whitespace-nowrap shrink-0 ${driver.is_active ? 'bg-accent/10 text-accent border-accent/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
                       {driver.vehicle_number}
                     </span>
                   </div>

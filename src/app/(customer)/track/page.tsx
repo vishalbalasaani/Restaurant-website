@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle, Phone, Flame, Radar, MapPin, Bike } from 'lucide-react';
+import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle, Phone, Flame, Radar, MapPin, Bike, Cloud } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate, getStatusStep } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
@@ -18,7 +18,46 @@ const STATUS_STEPS = [
   { key: 'ready', label: 'Ready', icon: Package, color: 'bg-blue-500', ring: 'ring-blue-100', text: 'text-blue-600' },
   { key: 'out_for_delivery', label: 'Out for Delivery', icon: Truck, color: 'bg-indigo-500', ring: 'ring-indigo-100', text: 'text-indigo-600' },
   { key: 'delivered', label: 'Delivered', icon: CheckCircle2, color: 'bg-green-500', ring: 'ring-green-100', text: 'text-green-600' },
+  { key: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500', ring: 'ring-red-100', text: 'text-red-600' }
 ];
+
+const DeliveryScootyAnimation = () => (
+  <svg viewBox="0 0 120 100" className="w-24 h-20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Motion blur/wind */}
+    <motion.path d="M0 60 L-15 60 M5 50 L-10 50" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" animate={{ x: [-10, 5, -10], opacity: [0, 1, 0] }} transition={{ duration: 0.4, repeat: Infinity }} />
+    
+    {/* Delivery Bag */}
+    <rect x="15" y="25" width="25" height="35" rx="3" fill="#F97316" stroke="#EA580C" strokeWidth="2" />
+    <path d="M15 35 L40 35" stroke="#EA580C" strokeWidth="2" />
+    <path d="M27.5 25 L27.5 60" stroke="#EA580C" strokeWidth="2" />
+    
+    {/* Body */}
+    <path d="M25 60 L95 60 C105 60 105 75 95 75 L15 75 C5 75 5 60 25 60 Z" fill="#3B82F6" />
+    <path d="M75 35 L95 60 L65 60 Z" fill="#2563EB" />
+    <path d="M60 25 L80 25 C85 25 90 35 80 35 L60 35 Z" fill="#1E3A8A" />
+    
+    {/* Wheels */}
+    <g>
+      <circle cx="30" cy="75" r="14" fill="#1F2937" stroke="#4B5563" strokeWidth="3" />
+      <motion.circle cx="30" cy="75" r="6" fill="#D1D5DB" stroke="#9CA3AF" strokeWidth="1" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "30px 75px" }} />
+      <motion.path d="M30 69 L30 81 M24 75 L36 75" stroke="#4B5563" strokeWidth="2" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "30px 75px" }} />
+    </g>
+    <g>
+      <circle cx="85" cy="75" r="14" fill="#1F2937" stroke="#4B5563" strokeWidth="3" />
+      <motion.circle cx="85" cy="75" r="6" fill="#D1D5DB" stroke="#9CA3AF" strokeWidth="1" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "85px 75px" }} />
+      <motion.path d="M85 69 L85 81 M79 75 L91 75" stroke="#4B5563" strokeWidth="2" animate={{ rotate: 360 }} transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "85px 75px" }} />
+    </g>
+
+    {/* Headlight */}
+    <circle cx="100" cy="65" r="4" fill="#FEF08A" />
+    <motion.path d="M102 65 L120 55 L120 75 Z" fill="#FEF08A" opacity="0.5" animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 0.5, repeat: Infinity }} />
+
+    {/* Partner */}
+    <circle cx="65" cy="18" r="12" fill="#EF4444" stroke="#B91C1C" strokeWidth="2" />
+    <rect x="67" y="14" width="8" height="8" rx="2" fill="#111827" />
+    <path d="M58 30 Q65 25 75 35 L80 45" stroke="#EF4444" strokeWidth="8" strokeLinecap="round" />
+  </svg>
+);
 
 function TrackOrderContent() {
   const searchParams = useSearchParams();
@@ -497,23 +536,50 @@ function TrackOrderContent() {
                             <p className="text-white/80 font-medium text-sm">Your order is out for delivery.</p>
                           </div>
                         </div>
-                        <div className="relative w-full h-10 mt-6 rounded-lg overflow-hidden bg-slate-800 shadow-inner border-y-4 border-slate-900 flex items-center">
-                          {/* Animated Dashed Road Lines to create movement effect */}
-                          <motion.div 
-                            initial={{ x: 0 }}
-                            animate={{ x: "-32px" }}
-                            transition={{ duration: 0.5, repeat: Infinity, ease: "linear" }}
-                            className="absolute left-0 right-[-32px] w-[calc(100%+32px)] h-[2px] border-t-[3px] border-dashed border-white/40" 
-                          />
+                        <div className="relative w-full h-40 mt-6 rounded-2xl overflow-hidden bg-gradient-to-b from-sky-400 to-sky-200 shadow-inner flex flex-col justify-end">
+                          {/* Sun */}
+                          <div className="absolute top-4 right-8 w-10 h-10 rounded-full bg-yellow-300 shadow-[0_0_20px_rgba(253,224,71,0.8)]" />
                           
-                          {/* The Bike moving forward */}
+                          {/* Clouds */}
+                          <motion.div initial={{ x: "100%" }} animate={{ x: "-200%" }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute top-6 left-10 opacity-60">
+                            <Cloud className="w-12 h-12 text-white fill-white" />
+                          </motion.div>
+                          <motion.div initial={{ x: "100%" }} animate={{ x: "-200%" }} transition={{ duration: 15, repeat: Infinity, ease: "linear", delay: 5 }} className="absolute top-2 left-40 opacity-80">
+                            <Cloud className="w-8 h-8 text-white fill-white" />
+                          </motion.div>
+                          
+                          {/* City Skyline */}
+                          <motion.div initial={{ x: 0 }} animate={{ x: "-50%" }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute bottom-12 flex whitespace-nowrap opacity-20">
+                             <div className="w-16 h-20 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-10 h-12 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-24 h-24 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-12 h-16 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-20 h-14 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-16 h-20 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-10 h-12 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-24 h-24 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-12 h-16 bg-slate-800 mx-1 rounded-t-sm" />
+                             <div className="w-20 h-14 bg-slate-800 mx-1 rounded-t-sm" />
+                          </motion.div>
+
+                          {/* Road */}
+                          <div className="w-full h-12 bg-slate-700 relative border-t-4 border-slate-500 shadow-lg shrink-0">
+                            <motion.div 
+                              initial={{ x: 0 }}
+                              animate={{ x: "-48px" }}
+                              transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }}
+                              className="absolute top-1/2 -translate-y-1/2 left-0 right-[-48px] w-[calc(100%+48px)] h-[3px] border-t-[4px] border-dashed border-yellow-400" 
+                            />
+                          </div>
+                          
+                          {/* Scooty SVG moving */}
                           <motion.div
-                            initial={{ left: "-20%" }}
-                            animate={{ left: "120%" }}
-                            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                            className="absolute top-1/2 -translate-y-[70%] text-white z-10 drop-shadow-xl"
+                            initial={{ x: "-20%", y: 0 }}
+                            animate={{ x: ["-20%", "40%", "40%", "120%"], y: [0, -2, 0, -2, 0] }}
+                            transition={{ x: { duration: 8, repeat: Infinity, ease: "linear" }, y: { duration: 0.4, repeat: Infinity, ease: "linear" } }}
+                            className="absolute bottom-2 z-10 drop-shadow-xl"
                           >
-                            <Bike className="h-7 w-7" />
+                             <DeliveryScootyAnimation />
                           </motion.div>
                         </div>
                       </div>
