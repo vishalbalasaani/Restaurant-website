@@ -179,28 +179,36 @@ export default function LiveOrdersPage() {
     if (order.status === 'ready') {
       const isPickup = order.customer_address === 'Pickup/Dine-in';
       return (
-        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
           {isPickup ? (
             <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
               {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Check className="h-4 w-4 shrink-0" />}
-              Mark Picked Up
+              <span className="truncate">Mark Picked Up</span>
             </button>
           ) : (
             <button disabled={updatingOrder === order.id} onClick={() => setAssigningDriverOrder(order)} className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70">
               {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Truck className="h-4 w-4 shrink-0" />}
-              Assign Driver
+              <span className="truncate">Assign Driver</span>
             </button>
           )}
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Cancel</span>
+          </button>
         </div>
       );
     }
 
     if (order.status === 'out_for_delivery') {
       return (
-        <div className="grid grid-cols-1 gap-2 bg-background p-4 border-t border-border">
+        <div className="grid grid-cols-2 gap-2 bg-background p-4 border-t border-border">
           <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'delivered', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl bg-green-600 py-3 font-button text-sm font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-70">
             {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
-            Mark Delivered
+            <span className="truncate">Mark Delivered</span>
+          </button>
+          <button disabled={updatingOrder === order.id} onClick={() => handleStatusUpdate(order.id, 'cancelled', order.driver_id)} className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 font-button text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-70">
+            {updatingOrder === order.id ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <XCircle className="h-4 w-4 shrink-0" />}
+            <span className="truncate">Cancel</span>
           </button>
         </div>
       );

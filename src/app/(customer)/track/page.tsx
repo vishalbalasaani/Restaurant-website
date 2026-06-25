@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle, Phone } from 'lucide-react';
+import { Search, Package, CheckCircle2, Clock, Truck, ChefHat, CreditCard, XCircle, Star, MessageCircle, Phone, Flame, Radar, MapPin } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate, getStatusStep } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
@@ -420,6 +420,98 @@ function TrackOrderContent() {
                           <p className="mt-1 text-sm text-text-light font-medium text-[#25D366]">
                             Please message {settings.whatsapp}
                           </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Premium Status Animations */}
+                  {order.status === 'preparing' && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 p-6 text-white shadow-lg shadow-orange-500/20">
+                      <div className="absolute -right-10 -top-10 opacity-10">
+                        <ChefHat className="h-40 w-40" />
+                      </div>
+                      <div className="relative z-10 flex items-center gap-6">
+                        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                          <motion.div
+                            animate={{ y: [0, -8, 0], rotate: [0, -5, 5, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            <ChefHat className="h-8 w-8 text-white" />
+                          </motion.div>
+                          <motion.div
+                            className="absolute -bottom-1 -right-1"
+                            animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                          >
+                            <Flame className="h-5 w-5 text-yellow-300" />
+                          </motion.div>
+                        </div>
+                        <div>
+                          <h4 className="font-heading text-xl font-bold">Cooking in progress</h4>
+                          <p className="text-white/80 font-medium text-sm mt-1">Our chefs are preparing your order with care.</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {order.status === 'ready' && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-6 text-white shadow-lg shadow-blue-500/20">
+                      <div className="absolute -right-10 -top-10 opacity-10">
+                        <Package className="h-40 w-40" />
+                      </div>
+                      <div className="relative z-10 flex items-center gap-6">
+                        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute inset-0 rounded-full border-2 border-white/30"
+                          />
+                          <motion.div
+                            animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
+                            className="absolute inset-0 rounded-full border-2 border-white/30"
+                          />
+                          <Radar className="h-8 w-8 text-white relative z-10" />
+                        </div>
+                        <div>
+                          <h4 className="font-heading text-xl font-bold">Food is Ready!</h4>
+                          <p className="text-white/80 font-medium text-sm mt-1">Assigning a delivery partner to pick it up.</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {order.status === 'out_for_delivery' && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary-light p-6 text-white shadow-lg shadow-primary/20">
+                      <div className="absolute -right-10 -top-10 opacity-10">
+                        <MapPin className="h-40 w-40" />
+                      </div>
+                      <div className="relative z-10 flex flex-col gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                            <Truck className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-heading text-xl font-bold">On the way</h4>
+                            <p className="text-white/80 font-medium text-sm">Your order is out for delivery.</p>
+                          </div>
+                        </div>
+                        <div className="relative h-2 w-full rounded-full bg-white/20 mt-2">
+                          <motion.div
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            className="absolute left-0 top-0 h-full rounded-full bg-white"
+                          />
+                          <motion.div
+                            initial={{ x: "-100%" }}
+                            animate={{ x: "100%" }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            className="absolute top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white"
+                          >
+                            <Truck className="h-5 w-5 drop-shadow-md" />
+                          </motion.div>
                         </div>
                       </div>
                     </motion.div>
