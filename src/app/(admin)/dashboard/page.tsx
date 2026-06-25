@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { ORDER_STATUS_LABELS } from '@/lib/types';
 import type { Order } from '@/lib/types';
+import { DriverHistoryModal } from './driver-history-modal';
 
 interface StatCard {
   label: string;
@@ -21,7 +22,8 @@ interface StatCard {
 export default function DashboardOverview() {
   const [stats, setStats] = useState({ today: 0, pending: 0, completed: 0, revenue: 0 });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [driverStats, setDriverStats] = useState<{name: string, delivered: number}[]>([]);
+  const [driverStats, setDriverStats] = useState<{id: string, name: string, delivered: number}[]>([]);
+  const [viewingDriver, setViewingDriver] = useState<{id: string, name: string} | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
@@ -63,6 +65,7 @@ export default function DashboardOverview() {
         
         if (driversData && driverOrders) {
           const dStats = driversData.map(d => ({
+            id: d.id,
             name: d.name,
             delivered: driverOrders.filter(o => o.driver_id === d.id).length
           })).sort((a, b) => b.delivered - a.delivered).slice(0, 5); // top 5 drivers
@@ -318,18 +321,22 @@ export default function DashboardOverview() {
               <p className="text-sm text-text-light text-center py-4">No driver data yet.</p>
             ) : (
               driverStats.map((driver, idx) => (
-                <div key={driver.name} className="flex items-center justify-between border-b border-border pb-3 last:border-0 last:pb-0">
+                <button 
+                  key={driver.id} 
+                  onClick={() => setViewingDriver({ id: driver.id, name: driver.name })}
+                  className="flex w-full items-center justify-between border-b border-border pb-3 last:border-0 last:pb-0 hover:bg-accent/5 p-2 rounded-lg transition-colors text-left"
+                >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-accent font-bold text-sm">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-bold text-sm">
                       {idx + 1}
                     </div>
                     <span className="font-medium text-text truncate max-w-[120px]">{driver.name}</span>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <p className="font-bold text-primary">{driver.delivered}</p>
                     <p className="text-[10px] uppercase text-text-muted font-bold tracking-wider">Delivered</p>
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
@@ -338,6 +345,17 @@ export default function DashboardOverview() {
           </a>
         </motion.div>
       </div>
+      
+      {/* Driver History Modal */}
+      <AnimatePresence>
+        {viewingDriver && (
+          <DriverHistoryModal
+            driverId={viewingDriver.id}
+            driverName={viewingDriver.name}
+            onClose={() => setViewingDriver(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

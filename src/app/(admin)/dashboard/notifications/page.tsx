@@ -199,10 +199,15 @@ export default function LiveOrdersPage() {
     }
 
     if (order.status === 'out_for_delivery') {
+      const itemsList = order.order_items?.map(item => `${item.quantity}x ${item.product_name}`).join(', ') || 'No items listed';
       const waMessage = `📦 *New Delivery - Order #${order.order_number}*
 Customer: ${order.customer_name}
 Phone: ${order.customer_phone}
 Address: ${order.customer_address}
+
+🛒 *Order Details:*
+Items: ${itemsList}
+Total to Collect: ${formatPrice(order.total_amount)}
 
 📍 *Get Customer Location:*
 Driver, click the link below to ask the customer for their live location:
