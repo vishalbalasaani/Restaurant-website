@@ -278,6 +278,25 @@ export default function SettingsPage() {
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
               >
                 {TIME_SLOTS.map(({ val, label }) => {
+                  const now = new Date();
+                  const pad = (n: number) => String(n).padStart(2, '0');
+                  const localTodayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+                  
+                  let selectedDateStr = localTodayStr;
+                  if (settings.opening_time) {
+                    const d = new Date(settings.opening_time);
+                    if (!isNaN(d.getTime())) {
+                      selectedDateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+                    }
+                  }
+                  
+                  if (selectedDateStr === localTodayStr) {
+                    const [slotH, slotM] = val.split(':').map(Number);
+                    if (slotH < now.getHours() || (slotH === now.getHours() && slotM <= now.getMinutes())) {
+                      return null;
+                    }
+                  }
+                  
                   return <option key={val} value={val}>{label}</option>;
                 })}
               </select>
@@ -326,6 +345,25 @@ export default function SettingsPage() {
                 className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
               >
                 {TIME_SLOTS.map(({ val, label }) => {
+                  const now = new Date();
+                  const pad = (n: number) => String(n).padStart(2, '0');
+                  const localTodayStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+                  
+                  let selectedDateStr = localTodayStr;
+                  if (settings.closing_time) {
+                    const d = new Date(settings.closing_time);
+                    if (!isNaN(d.getTime())) {
+                      selectedDateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+                    }
+                  }
+                  
+                  if (selectedDateStr === localTodayStr) {
+                    const [slotH, slotM] = val.split(':').map(Number);
+                    if (slotH < now.getHours() || (slotH === now.getHours() && slotM <= now.getMinutes())) {
+                      return null;
+                    }
+                  }
+                  
                   return <option key={val} value={val}>{label}</option>;
                 })}
               </select>
