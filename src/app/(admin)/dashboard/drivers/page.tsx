@@ -206,24 +206,24 @@ export default function DriversPage() {
               key={driver.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex flex-col md:flex-row items-center justify-between overflow-hidden rounded-2xl border ${driver.is_active ? 'border-border' : 'border-border/50 opacity-75'} bg-card p-4 shadow-sm hover:shadow-md transition-all gap-4`}
+              className={`grid grid-cols-1 lg:grid-cols-12 gap-6 items-center overflow-hidden rounded-2xl border ${driver.is_active ? 'border-border' : 'border-border/50 opacity-75'} bg-card p-5 shadow-sm hover:shadow-md transition-all`}
             >
               {/* Driver Info */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1 min-w-0">
-                <div className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-full overflow-hidden border-2 shadow-sm ${driver.is_active ? 'border-border' : 'border-border/50 grayscale'}`}>
+              <div className="lg:col-span-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className={`relative h-16 w-16 shrink-0 rounded-full overflow-hidden border-2 shadow-sm ${driver.is_active ? 'border-border' : 'border-border/50 grayscale'}`}>
                   <Image src={driver.photo_url} alt={driver.name} fill className="object-cover" />
                 </div>
                 <div className="flex flex-col min-w-0 w-full">
-                  <div className="flex flex-wrap items-center gap-2 mb-1 w-full">
-                    <h3 className="font-heading text-lg font-bold text-text truncate max-w-[150px] sm:max-w-[180px]">{driver.name}</h3>
+                  <div className="flex flex-wrap items-center gap-2 mb-1.5 w-full">
+                    <h3 className="font-heading text-lg font-bold text-text truncate max-w-[200px]">{driver.name}</h3>
                     {!driver.is_active ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200 whitespace-nowrap shrink-0">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200 shrink-0">
                         Offline
                       </span>
                     ) : (() => {
                       const isReturning = driver.availability_status === 'Assigned' && driver.active_orders === 0;
                       return (
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shrink-0 ${
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0 ${
                           driver.availability_status === 'Available' 
                             ? 'bg-green-100 text-green-700 border border-green-200' 
                             : isReturning
@@ -236,10 +236,13 @@ export default function DriversPage() {
                       );
                     })()}
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-text-light w-full">
-                    <span className="whitespace-nowrap">{driver.mobile_number}</span>
-                    <span className="hidden sm:inline h-1 w-1 rounded-full bg-border-light shrink-0"></span>
-                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-bold border whitespace-nowrap shrink-0 ${driver.is_active ? 'bg-accent/10 text-accent border-accent/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-text-light w-full mt-0.5">
+                    <span className="whitespace-nowrap flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 text-text-muted" />
+                      {driver.mobile_number}
+                    </span>
+                    <span className="hidden sm:inline h-1.5 w-1.5 rounded-full bg-border shrink-0"></span>
+                    <span className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-bold border whitespace-nowrap shrink-0 ${driver.is_active ? 'bg-accent/10 text-accent border-accent/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
                       {driver.vehicle_number}
                     </span>
                   </div>
@@ -247,46 +250,25 @@ export default function DriversPage() {
               </div>
               
               {/* Stats */}
-              <div className="flex items-center gap-8 md:px-8 border-y md:border-y-0 py-4 md:py-0 w-full md:w-auto border-border">
-                <div className="flex flex-col items-center justify-center flex-1 md:flex-none">
-                  <span className="text-xs font-medium uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+              <div className="lg:col-span-3 flex items-center justify-around border-y lg:border-y-0 lg:border-x border-border py-4 lg:py-0 h-full">
+                <div className="flex flex-col items-center justify-center flex-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                     <CheckCircle2 className="h-3.5 w-3.5" /> Total
                   </span>
-                  <span className="font-heading text-xl font-bold text-text">{driver.delivered_orders}</span>
+                  <span className="font-heading text-xl sm:text-2xl font-bold text-text">{driver.delivered_orders}</span>
                 </div>
-                <div className="h-10 w-px bg-border hidden md:block"></div>
-                <div className="flex flex-col items-center justify-center flex-1 md:flex-none">
-                  <span className="text-xs font-medium uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                <div className="h-10 w-px bg-border"></div>
+                <div className="flex flex-col items-center justify-center flex-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" /> On The Way
                   </span>
-                  <span className={`font-heading text-xl font-bold ${driver.active_orders > 0 ? 'text-accent' : 'text-text'}`}>{driver.active_orders}</span>
+                  <span className={`font-heading text-xl sm:text-2xl font-bold ${driver.active_orders > 0 ? 'text-accent' : 'text-text'}`}>{driver.active_orders}</span>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex flex-col md:flex-row items-center justify-end w-full md:w-auto shrink-0 gap-2 pl-2">
-                <button
-                  onClick={() => setViewingDriver({ id: driver.id, name: driver.name })}
-                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 w-full md:w-auto"
-                >
-                  <Package className="h-4 w-4" />
-                  History
-                </button>
-                {driver.availability_status === 'Assigned' && driver.active_orders === 0 && driver.is_active && (
-                  <button
-                    onClick={() => markDriverArrived(driver.id)}
-                    disabled={togglingId === driver.id}
-                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 w-full md:w-auto"
-                  >
-                    {togglingId === driver.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <MapPin className="h-4 w-4" />
-                    )}
-                    Mark Arrived
-                  </button>
-                )}
-                <div className="flex items-center gap-3 w-full md:w-auto bg-accent/5 px-4 py-2 rounded-xl border border-accent/10">
+              <div className="lg:col-span-4 flex flex-wrap items-center justify-start lg:justify-end gap-3 w-full">
+                <div className="flex items-center gap-3 w-full sm:w-auto bg-accent/5 px-4 py-2.5 rounded-xl border border-accent/10">
                   <span className={`text-xs font-bold uppercase tracking-wider ${driver.is_active ? 'text-green-600' : 'text-text-muted'}`}>
                     {driver.is_active ? 'Online' : 'Offline'}
                   </span>
@@ -309,6 +291,30 @@ export default function DriversPage() {
                         <Power className="h-3 w-3 text-slate-300" />
                       )}
                     </span>
+                  </button>
+                </div>
+                
+                <div className="flex flex-1 sm:flex-none justify-end gap-3">
+                  {driver.availability_status === 'Assigned' && driver.active_orders === 0 && driver.is_active && (
+                    <button
+                      onClick={() => markDriverArrived(driver.id)}
+                      disabled={togglingId === driver.id}
+                      className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200"
+                    >
+                      {togglingId === driver.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <MapPin className="h-4 w-4" />
+                      )}
+                      Mark Arrived
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setViewingDriver({ id: driver.id, name: driver.name })}
+                    className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                  >
+                    <Package className="h-4 w-4" />
+                    History
                   </button>
                 </div>
               </div>
